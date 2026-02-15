@@ -23,6 +23,7 @@ This repo documents my technical approach to independent cinema: open source too
 
 - [Philosophy](#philosophy)
 - [Films](#films)
+- [Stack](#stack)
 - [Magic Lantern RAW on Canon 5D Mark III](#magic-lantern-raw-on-canon-5d-mark-iii)
   - [Why RAW on a DSLR](#why-raw-on-a-dslr)
   - [The Hack](#the-hack)
@@ -73,6 +74,12 @@ That's what Magic Lantern proved. And that's what the AXIOM camera is building f
 I've been working with these tools since 2013. I shot a Cesar-winning film with this workflow. I matched Canon DSLR RAW footage with $20,000 cinema cameras and no one in the audience could tell the difference.
 
 This is not about saving money. It's about **control**. Understanding every step of the image pipeline from photon to pixel. Being able to modify any part of the chain. Not depending on a manufacturer's decision about what you're allowed to do with hardware you own.
+
+The same logic extends beyond cameras. Running AI models locally on a portable build instead of renting cloud GPUs. Encoding in AV1 and FFV1 instead of proprietary codecs. Archiving in open formats. Measuring the carbon footprint of every render. Running Ministral on an 8GB phone. Solar and mini wind turbines for compute. BitTorrent and peer-to-peer instead of centralized services.
+
+This is **permacomputing** applied to cinema: extending hardware life through software (the 5D Mark III is 13 years old and still shooting RAW that matches $20K cameras), minimizing environmental impact, decentralizing infrastructure, and maintaining sovereignty over tools, data, and creative process. Not crypto-bro decentralization. Artistic freedom through technical independence.
+
+My methodology is **liquid writing** (*écriture liquide*): the boundaries between research, writing, shooting, and editing dissolve. Writing continues into editing. Research contaminates mise en scène. Algorithmic accidents become filmic material. AI is a collaborator that *alters* thought rather than augmenting it.
 
 ---
 
@@ -125,6 +132,35 @@ Three people unable to tolerate electromagnetic radiation speak about what they 
 | **Awards** | Prix Festivals Connexion (Clermont-Ferrand), Grand Prix + Prix de la Jeunesse (Regensburg), Best Documentary (Cyprus), Mention spéciale du jury (Brussels) |
 
 Parts of the film were shot on Canon DSLRs with Magic Lantern RAW. The footage was matched in post-production with Blackmagic and RED Dragon material using the DaVinci Wide Gamut / DaVinci Intermediate color pipeline described below.
+
+---
+
+## Stack
+
+February 2026. I work across macOS, Windows, and Linux. I built Hackintoshes for years. Today I focus on price-efficient prosumer builds for local AI.
+
+**Cinema**: Final Cut Pro 12, DaVinci Resolve, MLV App, Magic Lantern, DCP-o-matic, FCPXML, OpenTimelineIO
+
+**AI Interfaces**: [ComfyUI](https://www.comfy.org/), [InvokeAI](https://github.com/invoke-ai/InvokeAI), [Krita AI Diffusion](https://github.com/Acly/krita-ai-diffusion), [SwarmUI](https://github.com/mcmonkeyprojects/SwarmUI), [WanGP](https://github.com/deepbeepmeep/Wan2GP), [Forge Neo](https://github.com/6Morpheus6/forge-neo), Gradio
+
+**Platforms**: [Glif](https://glif.app/), [Hugging Face](https://huggingface.co/), [Pinokio](https://pinokio.co/)
+
+**AI Models**: Wan 2.1/2.2, Flux, SDXL, Hunyuan Video, LTX Video, SAM 3, Depth Anything, RIFE, Real-ESRGAN
+
+**LLMs**: Claude (primary, via [Claude Code](https://claude.com/claude-code) CLI), GPT, Gemini, Grok, Mistral, DeepSeek
+
+**3D & Game Engines**: Blender, Unity, Unreal Engine, Godot
+
+**Codecs**: AV1 ([SVT-AV1](https://gitlab.com/AOMediaCodec/SVT-AV1) + [AV1AN](https://github.com/master-of-zen/Av1an)), ProRes, BRAW, Canon RAW Light, FFV1/Matroska, CinemaDNG, DCP (JPEG2000)
+
+**Hardware**:
+
+| Machine | Role | Specs |
+|---|---|---|
+| **RTX 5090 build** | Local AI, generative workflows | Ryzen 9950X, 96GB DDR5, NCASE form factor (fits in a bag) |
+| **MacBook Air M3** | Editing, remote work, casual | Portable screen for nomadic setup |
+| **Comfy Cloud** | Backup GPU | RTX 6000 Pro 96GB |
+| **Mac Studio Ultra M5** *(planned)* | Decloudified local AI server | Dual stacked, 512GB RAM, sovereign open source AI |
 
 ---
 
@@ -840,14 +876,14 @@ Beyond using open source tools, I've contributed to several projects in the open
 
 ### Magic Lantern & RAW Video
 
-- **[MlRawViewer](https://github.com/ethiccinema/mlrawviewer)**: Developed by the [ethic cinema](https://github.com/ethiccinema) collective I'm part of. GPU-accelerated MLV viewer that enabled a proxy/RAW dual workflow on the Canon 5D Mark III: review footage in real-time, select takes, then process only what you need.
 - **CinemaDNG encoding**: Contributed to the transition from CPU-based to CUDA GPU-accelerated CinemaDNG encoding, reducing batch conversion times from hours to minutes on footage from the 5D3 and other ML cameras.
-- **[Apertus / AXIOM camera](https://apertus.org/)**: Active community member (2013-2015) during the early development of the AXIOM Beta. Participated in sensor characterization discussions, workflow testing, and the open hardware cinema camera movement.
+- **[Apertus / AXIOM camera](https://apertus.org/)**: Participated in the development of the AXIOM Beta (2013-2015), the world's first fully open source cinema camera. Sensor characterization, workflow testing, and open hardware cinema camera movement.
 
 ### Post-Production & Delivery
 
-- **[DCP-o-matic](https://dcpomatic.com/)**: UI feedback and workflow testing for DCP creation. Also contributed to [Shutter Encoder](https://www.shutterencoder.com/) and [FFWorks](https://www.ffworks.net/) (FFmpeg frontends for macOS).
+- **[DCP-o-matic](https://dcpomatic.com/)**: UI feedback and workflow testing for DCP creation.
 - **FFV1 archiving**: Advocacy for the FFV1 lossless codec (standardized as IETF RFC 9043) as an open, mathematically lossless archival format for cinema. FFV1 in Matroska is now accepted by major film archives including the Library of Congress and the Austrian Film Archive.
+- **AV1 encoding**: Using [SVT-AV1](https://gitlab.com/AOMediaCodec/SVT-AV1) + [AV1AN](https://github.com/master-of-zen/Av1an) with VMAF targeting for cinema-quality distribution encodes.
 
 ### AI & Cinema Workflows
 
