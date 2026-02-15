@@ -15,7 +15,7 @@
 
 I'm a filmmaker. I shoot auteur cinema with tools that weren't designed for it, or rather, tools that the manufacturers *deliberately prevented* from doing what the hardware could already do. My film [Maalbeek](https://en.unifrance.org/movie/50347/maalbeek) won the César for Best Documentary Short in 2022 and premiered at the Semaine de la Critique in Cannes. Parts of [Ondes Noires](https://en.unifrance.org/movie/45236/dark-waves) were shot on Canon DSLRs with Magic Lantern RAW and matched in post with Blackmagic and RED Dragon footage.
 
-This repo documents my workflow, my tools, and why open source matters in cinema.
+This repo documents my technical approach to independent cinema: open source tools, camera hacks, RAW workflows, multi-camera color pipelines, and the emerging role of AI agents in post-production.
 
 ---
 
@@ -56,6 +56,7 @@ This repo documents my workflow, my tools, and why open source matters in cinema
 - [Camera Kit: Upcoming Films](#camera-kit-upcoming-films)
 - [The Future: EOS R & RF Mount](#the-future-eos-r--rf-mount)
 - [AXIOM: The Open Source Cinema Camera](#axiom-the-open-source-cinema-camera)
+- [Open Source Contributions](#open-source-contributions)
 - [Resources & Links](#resources--links)
 - [Forum Activity](#forum-activity)
 
@@ -833,6 +834,27 @@ But for **installation work, experimental cinema, and as a development platform*
 
 ---
 
+## Open Source Contributions
+
+Beyond using open source tools, I've contributed to several projects in the open source cinema ecosystem:
+
+### Magic Lantern & RAW Video
+
+- **[MlRawViewer](https://github.com/ethiccinema/mlrawviewer)**: Developed by the [ethic cinema](https://github.com/ethiccinema) collective I'm part of. GPU-accelerated MLV viewer that enabled a proxy/RAW dual workflow on the Canon 5D Mark III: review footage in real-time, select takes, then process only what you need.
+- **CinemaDNG encoding**: Contributed to the transition from CPU-based to CUDA GPU-accelerated CinemaDNG encoding, reducing batch conversion times from hours to minutes on footage from the 5D3 and other ML cameras.
+- **[Apertus / AXIOM camera](https://apertus.org/)**: Active community member (2013-2015) during the early development of the AXIOM Beta. Participated in sensor characterization discussions, workflow testing, and the open hardware cinema camera movement.
+
+### Post-Production & Delivery
+
+- **[DCP-o-matic](https://dcpomatic.com/)**: UI feedback and workflow testing for DCP creation. Also contributed to [Shutter Encoder](https://www.shutterencoder.com/) and [FFWorks](https://www.ffworks.net/) (FFmpeg frontends for macOS).
+- **FFV1 archiving**: Advocacy for the FFV1 lossless codec (standardized as IETF RFC 9043) as an open, mathematically lossless archival format for cinema. FFV1 in Matroska is now accepted by major film archives including the Library of Congress and the Austrian Film Archive.
+
+### AI & Cinema Workflows
+
+- **[ComfyUI Cinema Pipeline](https://github.com/12georgiadis/comfyui-cinema-pipeline)**: MCP server bridging ComfyUI generative workflows with cinema post-production. Integrates Flux, Wan, and Stable Diffusion into NLE-compatible pipelines with proper color management.
+
+---
+
 ## Resources & Links
 
 ### Essential Tools
@@ -886,12 +908,13 @@ But for **installation work, experimental cinema, and as a development platform*
 - [Canon EOS R development](https://www.magiclantern.fm/forum/index.php?topic=22770.0)
 - [Bilal's crop_rec_4k for 650D/700D](https://www.magiclantern.fm/forum/index.php?topic=25784.0)
 
-### Companion Documents in This Repo
+### Companion Documents & Repos
 
 | Document | Description |
 |---|---|
 | **[ML RAW Workflows: DaVinci Resolve & Final Cut Pro](ML-RAW-Workflows-Resolve-FCP.md)** | Complete pro workflow guide: CinemaDNG in Resolve, CST node trees, multi-camera matching, DCP/IMF delivery, FCP roundtrip, open source IMF tools |
 | **[Agent-Driven Editing: Where Cinema Meets Code](Agent-Driven-Editing-2026.md)** | State of the art (Feb 2026): AI agents controlling NLEs, MCP servers for Resolve/FCP, OpenTimelineIO, CLI vs GUI, multimodal editing loop, assistant editor automation, AI tools for FCP keywords/smart collections/logging, complete agent pipeline for feature film post-production |
+| **[ComfyUI Cinema Pipeline](https://github.com/12georgiadis/comfyui-cinema-pipeline)** | MCP server bridging ComfyUI with cinema post-production: generative workflows (Flux, Wan, SD), NLE integration, hardware specs, color management |
 
 ---
 
