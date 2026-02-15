@@ -1,5 +1,5 @@
 # Magic Lantern RAW (CinemaDNG) -- Complete Professional Workflows
-## DaVinci Resolve & Final Cut Pro X
+## DaVinci Resolve & Final Cut Pro
 
 ---
 
@@ -497,7 +497,7 @@ Netflix published [Meridian](https://sites.google.com/netflix.com/opencontent) (
 
 ---
 
-# PART 2: Final Cut Pro X with ML RAW
+# PART 2: Final Cut Pro with ML RAW
 
 ---
 
@@ -511,9 +511,9 @@ Final Cut Pro does **not** natively support CinemaDNG or MLV files. You need an 
 1. **Convert MLV to CinemaDNG** using MLV App (with RAW corrections applied)
 2. **Import CinemaDNG into DaVinci Resolve**
 3. In Resolve, create a timeline and export all clips as **ProRes 422 LT** (or ProRes Proxy) via the Deliver page
-4. **Import ProRes files into FCPX**
-5. Edit in FCPX using these proxies
-6. For final grading: export FCPXML from FCPX > conform in Resolve with original CinemaDNG (see Conform section)
+4. **Import ProRes files into FCP**
+5. Edit in FCP using these proxies
+6. For final grading: export FCPXML from FCP > conform in Resolve with original CinemaDNG (see Conform section)
 
 ### Method 2: MLV App Direct Export to ProRes
 
@@ -521,18 +521,18 @@ Final Cut Pro does **not** natively support CinemaDNG or MLV files. You need an 
 2. Apply all RAW corrections (vertical stripes, focus pixels, pattern noise, chroma smoothing)
 3. Set processing parameters (exposure, WB, contrast) to taste
 4. Export as **Apple ProRes 4444** (preserves maximum quality including processing parameters)
-5. Import ProRes files directly into FCPX
+5. Import ProRes files directly into FCP
 6. **Limitation**: You lose RAW flexibility -- the processing is baked in
 
 ### Method 3: Color Finale Transcoder 2 (Direct CinemaDNG in FCP)
 
 1. Install Color Finale Transcoder 2 (paid plugin from Color Trix)
-2. In FCPX: Window > Extensions > Color Finale Transcoder
+2. In FCP: Window > Extensions > Color Finale Transcoder
 3. Browse to CinemaDNG sequences
 4. The extension can:
    - **Transcode** CinemaDNG to ProRes (Proxy through 4444 XQ), with RAW adjustments (color temp, tint, ISO, sharpness, highlight recovery, color space)
    - **Direct timeline editing** via FCP plugin (v2.0) -- place CinemaDNG on timeline without transcoding
-5. Transcoded files import directly into FCPX's library
+5. Transcoded files import directly into FCP's library
 6. Camera metadata is preserved and visible in FCP
 
 **Color Finale Transcoder 2 RAW Adjustment Controls:**
@@ -564,7 +564,7 @@ Final Cut Pro does **not** natively support CinemaDNG or MLV files. You need an 
 
 ---
 
-## 2. EDITING WORKFLOW IN FCPX
+## 2. EDITING WORKFLOW IN FCP
 
 ### Optimized vs. Proxy Media
 
@@ -585,9 +585,9 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 4. Enable **Angle Viewer**: View > Show in Viewer > Angles
 5. Edit in real time by clicking angles during playback
 
-> Frame rate matching: If ML RAW is 24p and another camera is 25p, FCPX will conform the 25p to match the multicam clip's base frame rate.
+> Frame rate matching: If ML RAW is 24p and another camera is 25p, FCP will conform the 25p to match the multicam clip's base frame rate.
 
-### Color Correction Tools in FCPX
+### Color Correction Tools in FCP
 
 #### Color Board (legacy, simple)
 - Window > Go To > Color Board (or Cmd + 6 after selecting clip)
@@ -608,15 +608,15 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 - Powerful for targeted adjustments
 - **Does NOT transfer to Resolve via FCPXML**
 
-> **Key point for round-tripping**: Only Color Board adjustments transfer via FCPXML. If planning to grade in Resolve, do NOT apply Color Wheels or Curves corrections in FCPX -- they will be lost.
+> **Key point for round-tripping**: Only Color Board adjustments transfer via FCPXML. If planning to grade in Resolve, do NOT apply Color Wheels or Curves corrections in FCP -- they will be lost.
 
 ---
 
-## 3. FINISHING IN FCPX
+## 3. FINISHING IN FCP
 
 ### Applying LUTs
 
-#### Native (FCP 10.4+)
+#### Native (FCP 10.4+ / FCP 12)
 1. Select clip in timeline
 2. Inspector (Cmd + 4) > Effects > Add Effect
 3. Search for **"Custom LUT"** effect
@@ -635,7 +635,7 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 8. Export custom LUTs as `.cube` files for reuse
 
 #### Via LUT Utility (Color Grading Central)
-- Dedicated LUT loading plugin for FCPX
+- Dedicated LUT loading plugin for FCP
 - Apply to individual clips or adjustment layers
 
 #### LUT Application Order
@@ -663,7 +663,7 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 - Adjustable film curve, saturation, grain amount
 - Export grades as `.cube` LUTs for use on set or in other apps
 
-### Noise Reduction in FCPX
+### Noise Reduction in FCP
 
 #### Built-in Noise Reduction
 1. Select clip in timeline
@@ -685,7 +685,7 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 - Multiple denoise algorithms
 - Can target specific frequency ranges
 
-### Sharpening in FCPX
+### Sharpening in FCP
 - Effects > Basics > **Sharpen**
 - Or use Color Finale's Details/Sharpness tool
 - Apply AFTER noise reduction
@@ -693,9 +693,9 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 
 ---
 
-## 4. ROUND-TRIP FCPX <-> DaVinci Resolve
+## 4. ROUND-TRIP FCP <-> DaVinci Resolve
 
-### Step 1: Export FCPXML from FCPX
+### Step 1: Export FCPXML from FCP
 
 1. Select project in Browser (or open in timeline)
 2. **File > Export XML**
@@ -727,23 +727,23 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 - Use Camera RAW palette for per-clip RAW adjustments
 - Apply creative grades, LUTs, film emulation
 
-### Step 5: Export from Resolve back to FCPX
+### Step 5: Export from Resolve back to FCP
 
 1. Go to **Deliver** page
-2. Select **"Final Cut Pro X"** preset
+2. Select **"Final Cut Pro"** preset
 3. Choose codec: ProRes 422 HQ (standard) or ProRes 4444 (HDR/animation)
 4. Set destination folder
 5. Click **Add to Render Queue** > **Render All**
 6. Resolve exports: graded video files + XML file
 
-### Step 6: Import back into FCPX
+### Step 6: Import back into FCP
 
-1. In FCPX: File > Import > XML
+1. In FCP: File > Import > XML
 2. Navigate to the XML file Resolve created
 3. A new Event is created with all graded clips
 4. Titles and timing are preserved
 
-### What Transfers (FCPX -> Resolve)
+### What Transfers (FCP -> Resolve)
 
 | Element | Transfers? |
 |---|---|
@@ -772,9 +772,9 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 | Tracking data / masks from Resolve | No (baked into rendered files) |
 | AIFF audio | No (convert to WAV) |
 
-### Using Compressor for Final Delivery from FCPX
+### Using Compressor for Final Delivery from FCP
 
-After grading round-trip is complete and graded clips are back in FCPX:
+After grading round-trip is complete and graded clips are back in FCP:
 
 1. **File > Share > Send to Compressor** (or use Compressor Presets destination)
 2. In Compressor, select format:
@@ -788,14 +788,14 @@ After grading round-trip is complete and graded clips are back in FCPX:
 
 ---
 
-## 5. SPECIFIC FCPX TIPS FOR ML RAW
+## 5. SPECIFIC FCP TIPS FOR ML RAW
 
 ### Frame Rate Handling
 - ML RAW frame rates depend on camera settings and resolution mode
 - Common: 23.976 (NTSC), 25 (PAL), 29.97, 24
 - 5D3 NTSC: 23.976fps, 29.97fps; PAL: 25fps
 - EOS M NTSC: 23.976fps, 29.97fps, 59.94fps; PAL: 25fps
-- **Set FCPX project frame rate to match BEFORE editing** -- it cannot be changed after media is on the timeline
+- **Set FCP project frame rate to match BEFORE editing** -- it cannot be changed after media is on the timeline
 - If first clip sets wrong frame rate: Modify > Edit Project Properties (only works before editing)
 - For GyroFlow stabilization: exact frame rate is critical to avoid "Framerate mismatch" errors
 
@@ -812,7 +812,7 @@ ML RAW records at various non-standard resolutions depending on the mode:
 | EOS M | Standard | 1736x976 | ~16:9 |
 | EOS M | 5K anamorphic | 1264x2134 | Vertical (needs rotation/stretch) |
 
-**In FCPX:**
+**In FCP:**
 - Set project to your desired output aspect ratio (e.g., 1920x1080 for 16:9, 2048x858 for 2.39:1 Scope)
 - Use **Spatial Conform** in Inspector: Fit, Fill, or None
 - For 3:2 sensor crops in a 16:9 project: use "Fit" and add letterboxing, or "Fill" and allow crop
@@ -828,8 +828,8 @@ ML RAW records at various non-standard resolutions depending on the mode:
 
 **Solutions:**
 1. **RAWMagic**: Creates CinemaDNG files with properly trimmed audio -- best automatic sync
-2. **MLV App**: Exports separate audio file alongside video. Import both into FCPX, use Synchronize Clips
-3. **Manual sync in FCPX**:
+2. **MLV App**: Exports separate audio file alongside video. Import both into FCP, use Synchronize Clips
+3. **Manual sync in FCP**:
    - Select video + audio clips
    - Clip > Synchronize Clips
    - Sync by: Audio (waveform matching) or First Marker
@@ -838,7 +838,7 @@ ML RAW records at various non-standard resolutions depending on the mode:
 
 ### Stabilization on ML RAW Footage
 
-**FCPX Built-in:**
+**FCP Built-in:**
 1. Select clip in timeline
 2. Inspector > Video tab > Stabilization section
 3. Enable Stabilization
@@ -875,7 +875,7 @@ ML RAW records at various non-standard resolutions depending on the mode:
 ```
 MLV --> MLV App (RAW corrections + CinemaDNG export with Resolve naming)
     --> DaVinci Resolve (import CinemaDNG, export ProRes proxies)
-    --> FCPX (edit with proxies, export FCPXML v1.9)
+    --> FCP (edit with proxies, export FCPXML v1.9)
     --> DaVinci Resolve (conform FCPXML, relink CinemaDNG, full color grade)
     --> Deliver (DCP for festivals, ProRes 422 HQ for broadcast, H.265 for streaming)
 ```
@@ -884,7 +884,7 @@ MLV --> MLV App (RAW corrections + CinemaDNG export with Resolve naming)
 
 ```
 MLV --> MLV App (RAW corrections + ProRes 4444 export with processing baked in)
-    --> FCPX (edit + basic grade)
+    --> FCP (edit + basic grade)
     --> Compressor (deliver H.265 for web)
 ```
 
@@ -893,7 +893,7 @@ MLV --> MLV App (RAW corrections + ProRes 4444 export with processing baked in)
 ```
 MLV --> MLV App (RAW corrections + CinemaDNG export)
     --> Color Finale Transcoder 2 (transcode to ProRes or edit CinemaDNG directly in FCP)
-    --> FCPX (edit + grade with Color Finale 2 Pro)
+    --> FCP (edit + grade with Color Finale 2 Pro)
     --> Compressor or direct share
 ```
 
@@ -921,7 +921,7 @@ MLV --> MLV App (RAW corrections + CinemaDNG export)
 - [Juan Melara: Basic Resolve Node Structure and Order of Operations](https://juanmelara.com.au/blog/basic-resolve-node-structure-and-order-of-operations)
 - [Fstoppers: Shooting 3.5K Raw with Magic Lantern](https://fstoppers.com/education/shooting-35k-raw-magic-lantern-heres-how-color-davinci-and-edit-premiere-249719)
 - [CineD: Guide RAW on 5D Mark III with Magic Lantern](https://www.cined.com/guide-raw-on-a-5d-mark-iii-magic-lantern/)
-- [Franck Rondot: Workflow sans perte ML RAW Resolve et FCPX](https://www.franck-rondot.com/blog-photographe/262-workflow-sans-perte-magic-lantern-raw-davinci-resolve-final-cut-pro-x.html)
+- [Franck Rondot: Workflow sans perte ML RAW Resolve et FCP](https://www.franck-rondot.com/blog-photographe/262-workflow-sans-perte-magic-lantern-raw-davinci-resolve-final-cut-pro-x.html)
 - [No Film School: Magic Lantern DNG RAW in Resolve](https://nofilmschool.com/2013/07/magic-lantern-dng-raw-files-supported-davinci-resolve-9-1-5)
 - [No Film School: Resolve 10 Fixes ML RAW Fringing](https://nofilmschool.com/2013/09/davinci-resolve-10-fixes-magic-lantern-raw-fringing)
 
@@ -939,9 +939,9 @@ MLV --> MLV App (RAW corrections + CinemaDNG export)
 - [Mixing Light: What is an IMF and How to Create One](https://mixinglight.com/tutorial-category/imf/)
 - [DaVinci Resolve Manual: IMF Encoding](https://www.steakunderwater.com/VFXPedia/__man/Resolve18-6/DaVinciResolve18_Manual_files/part3964.htm)
 
-## FCPX Round-Tripping
+## FCP Round-Tripping
 - [Larry Jordan: Round-Tripping Between FCP and DaVinci Resolve](https://larryjordan.com/articles/round-tripping-projects-between-final-cut-pro-and-davinci-resolve/)
-- [Ripple Training: Round-Tripping with FCPX in DaVinci Resolve](https://www.rippletraining.com/blog/davinci-resolve/round-tripping-with-final-cut-pro-x-in-davinci-resolve/)
+- [Ripple Training: Round-Tripping with FCP in DaVinci Resolve](https://www.rippletraining.com/blog/davinci-resolve/round-tripping-with-final-cut-pro-x-in-davinci-resolve/)
 - [Partners in Post: Roundtripping FCP 10.4.5 and Resolve 15](https://www.partnersinpost.com/blog/2019/2/1/roundtripping-between-final-cut-104-and-davinci-resolve-15-part-1)
 
 ## Tools
@@ -955,7 +955,7 @@ MLV --> MLV App (RAW corrections + CinemaDNG export)
 - [SlimRAW (Lossless DNG Compression)](https://www.slimraw.com/article-proxies.html)
 - [Netflix: Color Managed Workflow in Resolve ACES](https://partnerhelp.netflixstudios.com/hc/en-us/articles/360002088888-Color-Managed-Workflow-in-Resolve-ACES)
 
-## FCPX Noise Reduction & Plugins
+## FCP Noise Reduction & Plugins
 - [Apple Support: Reduce Video Noise in FCP](https://support.apple.com/guide/final-cut-pro/reduce-video-noise-ver7d031487b/mac)
 - [Neat Video Quick Start for FCP](https://www.neatvideo.com/support/quick-start-guides/nv5/fc)
 - [Larry Jordan: FCP Export Best Quality ProRes](https://larryjordan.com/articles/how-to-get-the-best-image-quality-exporting-prores-master-files/)

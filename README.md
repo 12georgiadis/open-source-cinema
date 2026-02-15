@@ -542,7 +542,7 @@ I use Final Cut Pro for editing and finishing, with DaVinci Resolve for color gr
 **What doesn't transfer:** title designs and formatting (rebuild in Resolve if needed).
 
 **Resolve back to FCP:**
-1. Deliver page > select "Final Cut Pro X" export preset
+1. Deliver page > select "Final Cut Pro" export preset
 2. Choose codec (ProRes 422 HQ for standard, ProRes 4444 for HDR)
 3. Add to Render Queue > Render All
 4. In FCP: File > Import > XML > navigate to Resolve's exported XML
@@ -890,7 +890,7 @@ But for **installation work, experimental cinema, and as a development platform*
 
 | Document | Description |
 |---|---|
-| **[ML RAW Workflows: DaVinci Resolve & Final Cut Pro](ML-RAW-Workflows-Resolve-FCPX.md)** | Complete pro workflow guide: CinemaDNG in Resolve, CST node trees, multi-camera matching, DCP/IMF delivery, FCP roundtrip, open source IMF tools |
+| **[ML RAW Workflows: DaVinci Resolve & Final Cut Pro](ML-RAW-Workflows-Resolve-FCP.md)** | Complete pro workflow guide: CinemaDNG in Resolve, CST node trees, multi-camera matching, DCP/IMF delivery, FCP roundtrip, open source IMF tools |
 | **[Agent-Driven Editing: Where Cinema Meets Code](Agent-Driven-Editing-2026.md)** | State of the art (Feb 2026): AI agents controlling NLEs, MCP servers for Resolve/FCP, OpenTimelineIO, CLI vs GUI, multimodal editing loop, assistant editor automation, AI tools for FCP keywords/smart collections/logging, complete agent pipeline for feature film post-production |
 
 ---
