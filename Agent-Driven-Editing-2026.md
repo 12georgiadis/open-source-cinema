@@ -30,6 +30,11 @@ This is a real question now. Not because the technology is ready (it isn't), but
   - [MCP (Model Context Protocol)](#mcp-model-context-protocol)
   - [OpenTimelineIO as the Backbone](#opentimelineio-as-the-backbone)
   - [The Missing Piece: A Headless NLE](#the-missing-piece-a-headless-nle)
+- [CLI Editing vs GUI: Is the Interface Still Necessary?](#cli-editing-vs-gui-is-the-interface-still-necessary)
+  - [What Can Already Be Done Without a GUI](#what-can-already-be-done-without-a-gui)
+  - [What Still Requires a GUI (And Why)](#what-still-requires-a-gui-and-why)
+  - [The Cursor Analogy (And Where It Breaks)](#the-cursor-analogy-and-where-it-breaks)
+  - [The Actual Architecture](#the-actual-architecture)
 - [My Assessment](#my-assessment)
   - [What Works Today](#what-works-today)
   - [What's Coming (2026-2027)](#whats-coming-2026-2027)
@@ -288,6 +293,127 @@ Not a GUI editor with a scripting API bolted on. A cinema-grade rendering engine
 OTIO's experimental editing commands (insert, overwrite, roll) are the embryo of this. MLT provides the rendering engine. OCIO provides the color science. The pieces exist. Nobody has assembled them.
 
 This would be the **"Cursor for video editing"** that the industry is waiting for. Not a SaaS that dies in 24 hours. Not a CapCut clone with a chatbot. A serious tool for serious filmmakers who happen to also write code or work with AI agents.
+
+---
+
+## CLI Editing vs GUI: Is the Interface Still Necessary?
+
+This is the real question underneath everything else. Not "which NLE is best for agents" but: **do we still need a graphical timeline to edit a film?**
+
+Cursor changed coding. You write intent in natural language, the agent writes code, you review the diff. The GUI (the code editor) is still there, but its role shifted: from being the place where you *write* code to being the place where you *review* what the agent wrote. The creative act moved from typing to directing.
+
+Can the same thing happen to film editing?
+
+### What Can Already Be Done Without a GUI
+
+Today, in February 2026, the following operations are possible entirely from the command line or via scripting, with **zero graphical interface**:
+
+| Operation | Tool | How |
+|-----------|------|-----|
+| **Build a timeline from scratch** | OTIO Python API | Define clips, gaps, transitions as code. Export to any format. |
+| **Assemble a rough cut from metadata** | OTIO + Python | Read a CSV/JSON of shot descriptions, match to media files, generate timeline |
+| **Convert between edit formats** | `otioconvert` CLI | EDL to FCPXML to AAF to OTIO in one command |
+| **Trim, reorder, concatenate edits** | `otiotool` CLI | `otiotool edit.otio --trim 00:01:00:00 00:05:00:00 -o trimmed.otio` |
+| **Detect cuts in a video** | FFprobe + OTIO | Automated scene detection, output as OTIO timeline |
+| **Render a multi-track timeline** | MLT `melt` CLI | Read XML timeline, render to ProRes/H.265/DPX without any GUI |
+| **Render from JSON spec** | [editly](https://github.com/mifi/editly) | Declare clips, layers, transitions in JSON5. FFmpeg renders. |
+| **Import media, create bins, set up project** | Resolve Python API | Headless via `-nogui` |
+| **Set render settings, start render queue** | Resolve Python API | Full delivery pipeline |
+| **Create DCP** | DCP-o-matic CLI | `dcpomatic2_cli --dcp-path /output film.xml` |
+| **Transcode, conform, reformat** | FFmpeg | The universal CLI media tool |
+| **Transcribe dialogue** | Whisper CLI | `whisper audio.wav --model large --output_format srt` |
+
+That's not nothing. That's the entire pipeline *except* the creative editorial decisions.
+
+### What Still Requires a GUI (And Why)
+
+Here's the honest list of what you cannot do from a CLI, and the reason is not technical but **perceptual**:
+
+**1. Watching the cut.**
+
+This is the fundamental one. Editing is a temporal art. You need to *see* the image and *hear* the sound at the right speed, in sequence, to judge whether a cut works. A timeline is data; a film is experience. No amount of metadata about a shot tells you what it *feels like* to watch it at that moment in the sequence. You can describe a face in JSON. You can't feel the weight of holding on that face for three seconds from a timecode range.
+
+There are CLI playback tools (`mpv`, `melt`, Open RV) but the point isn't playback per se. It's **playback in the context of editorial decision-making**: scrubbing, marking in/out points while watching, feeling the rhythm. This requires a responsive interface.
+
+**2. Spatial composition.**
+
+Picture-in-picture, split screens, repositioning, scale, rotation. These are visual operations that need visual feedback. You can define coordinates in code, but you can't *see* whether the composition works without seeing it.
+
+**3. Color grading.**
+
+Color is haptic. A colorist works with panels, wheels, curves, responds to what they see on a calibrated monitor. The Resolve API deliberately does not expose primary color controls. This is correct. Color grading by API call is like painting by coordinates.
+
+**4. Sound mixing.**
+
+Audio levels, spatial positioning, dynamics -- these need to be heard in context. A CLI can set parameters, but mixing is an aural activity.
+
+**5. The non-verbal part of editorial rhythm.**
+
+The decision to cut 4 frames earlier. The instinct that a reaction shot needs to breathe. The feeling that the music should enter 2 seconds before the image change. These are not articulable in advance. They emerge from watching the material. No prompt engineering replaces this.
+
+### The Cursor Analogy (And Where It Breaks)
+
+Cursor works for coding because:
+- Code is text. An LLM can read, understand, and generate text natively.
+- Code correctness is verifiable (tests, type checking, compilation).
+- The "review" step (reading a diff) uses the same medium as the "creation" step (writing code).
+
+Film editing breaks this analogy because:
+- A timeline is data, but the *output* (the film) is audiovisual. The agent works in one medium (data), the filmmaker evaluates in another (experience).
+- Film "correctness" is not verifiable. There's no test suite for whether a cut is good.
+- The review step (watching the film) is fundamentally different from the creation step (manipulating timeline data).
+
+**So: Cursor-for-editing is not "you type intent, the agent edits, you watch the result."** That feedback loop is too slow and too lossy. By the time you render and watch, you've lost the micro-decisions that make editing an art.
+
+**The real analogy is different.** Cursor doesn't replace the IDE. It transforms the IDE into a conversation space where the programmer directs and the agent executes. The equivalent for film editing is not removing the GUI. It's **embedding the agent into the GUI** so the filmmaker can direct the agent while watching the material.
+
+"Move this clip 12 frames earlier." "Try the wide shot instead of the close-up here." "Make this section 20% tighter." "Find me a reaction shot of the woman from scene 4 where she looks surprised." Spoken or typed into the NLE, executed by the agent, reviewed by the filmmaker in real time. The timeline stays on screen. The filmmaker stays in the flow of watching.
+
+### The Actual Architecture
+
+The answer is neither pure CLI nor pure GUI. It's **hybridization**, and the protocol stack looks like this:
+
+```
+Layer 4: FILMMAKER (watches, directs, decides)
+           |
+           | natural language / voice / gestures
+           v
+Layer 3: AGENT (reasons, plans, executes)
+           |
+           | MCP protocol (tool calls)
+           v
+Layer 2: NLE MCP SERVER (translates to NLE-specific API)
+           |
+           | Python/Lua scripting API
+           v
+Layer 1: NLE ENGINE (Resolve / MLT / Blender)
+           |
+           | renders frames
+           v
+Layer 0: DISPLAY (calibrated monitor, speakers)
+           |
+           | photons, sound waves
+           v
+         FILMMAKER (perceives, judges, loops back to Layer 4)
+```
+
+The GUI doesn't disappear. But its role changes:
+
+| Before agents | With agents |
+|--------------|-------------|
+| Filmmaker drags clips on timeline | Agent places clips, filmmaker reviews |
+| Filmmaker sets in/out points manually | Filmmaker says "tighter" or "longer", agent adjusts |
+| Filmmaker searches bins by scrolling | Agent searches by description ("find the close-up where he hesitates") |
+| Filmmaker sets up render presets | Agent handles entire delivery pipeline |
+| Filmmaker does QC pass manually | Agent detects flash frames, gaps, sync issues automatically |
+
+The GUI becomes a **review and direction interface**, not a manipulation interface. Like how a director on set doesn't operate the camera but watches the monitor and gives instructions.
+
+**Which protocol makes this possible?** MCP. It's the only protocol designed for real-time, conversational, tool-using AI agents. The NLE exposes an MCP server. The agent talks to it. The filmmaker talks to the agent. The timeline is the shared canvas.
+
+OTIO handles the data model underneath. FCPXML handles FCP-specific roundtripping. FFmpeg/MLT handle the rendering. But MCP is the conversational bridge. It's the protocol that lets the filmmaker say "try it without the music" and have the agent mute the audio track, instantly, while the timeline keeps playing.
+
+**This is the Cursor model adapted for film.** Not CLI editing. Not replacing the GUI. Embedding the agent into the GUI and turning the filmmaker into a director of the edit, not an operator of the edit.
 
 ---
 
