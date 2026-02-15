@@ -420,7 +420,11 @@ Click Edit to generate the standardized name: `Title_FTR-1_F_EN-XX_US-NR_51_2K_S
 
 For maximum quality: Encoding Profile: Main 4:4:4:10, Constant QP 0 (lossless equivalent).
 
-### IMF (Interoperable Master Format) -- Studio Only
+### IMF (Interoperable Master Format)
+
+IMF (SMPTE ST.2067) is the mastering and delivery standard used by Netflix, Amazon, Disney+, and major distributors. It supports multiple video/audio/subtitle tracks, Dolby Atmos, HDR, and supplemental packages (re-deliver only changed sections instead of the entire film).
+
+#### DaVinci Resolve Studio Settings
 
 | Setting | Value |
 |---|---|
@@ -433,9 +437,52 @@ For maximum quality: Encoding Profile: Main 4:4:4:10, Constant QP 0 (lossless eq
 | Lossless Compression | Optional |
 | Audio | Linear PCM, 48 kHz, 24-bit |
 
-IMF supports multiple video/audio/subtitle tracks, Dolby Atmos, HDR, and supplemental packages (re-deliver only changed sections).
+Resolve Studio ($295, one-time) is the most accessible commercial option for creating basic IMF packages with Kakadu GPU-accelerated JPEG2000 encoding.
 
-Used by Netflix, Amazon, and major distributors.
+#### Open Source IMF Tools
+
+A complete open source IMF ecosystem exists, though fragmented:
+
+| Tool | Role | Repo | Status |
+|---|---|---|---|
+| **Photon** (Netflix) | IMF validation (the reference tool) | [github.com/Netflix/photon](https://github.com/Netflix/photon) | Active, v5.0.0 (March 2025) |
+| **IMFTool** | CPL editing, asset management | [github.com/IMFTool/IMFTool](https://github.com/IMFTool/IMFTool) | Active, v1.9.7 (Nov 2024) |
+| **OpenJPEG** | JPEG 2000 encoding/decoding (IMF profiles) | [github.com/uclouvain/openjpeg](https://github.com/uclouvain/openjpeg) | Active, v2.5.4, ~1,100 stars |
+| **asdcplib** | MXF wrapping (AS-02 Track Files) | [github.com/cinecert/asdcplib](https://github.com/cinecert/asdcplib) | Active |
+| **imflib** | Complete IMP creation (video + audio) | [github.com/MarkusPfundstein/imflib](https://github.com/MarkusPfundstein/imflib) | WIP, passes Photon validation |
+| **FFmpeg** | IMF demuxer (reading only) | Merged upstream (Feb 2022) | `ffmpeg -f imf -i CPL.xml` |
+| **OpenJPH** | HTJ2K (10x faster JPEG2000) | [github.com/aous72/OpenJPH](https://github.com/aous72/OpenJPH) | Active, decode only for now |
+
+Full list maintained at: [imfug.com/open-source](https://www.imfug.com/open-source/)
+
+#### Can You Create a Full IMF Package in Open Source?
+
+Theoretically yes. Practically, it's fragile:
+
+```
+Source video (ProRes, DPX, EXR)
+  --> FFmpeg (extract frames)
+  --> OpenJPEG (encode JPEG2000 with IMF profile)
+  --> asdcplib (wrap as MXF AS-02 Track Files)
+  --> imflib or manual XML (generate CPL, PKL, Asset Map)
+  --> Photon (validate the package)
+  --> IMFTool (inspect, add tracks)
+```
+
+**What's missing in open source:** No Dolby Vision/Atmos support (requires Dolby licenses). No automated supplemental packages. OpenJPEG is extremely slow for feature-length 4K encoding (days vs hours with Kakadu). No encryption support (SMPTE ST 2067-10).
+
+#### For Indie Filmmakers: Is IMF Relevant?
+
+- **Delivering to Netflix/Disney+:** Yes, IMF is mandatory. But in practice, the post-production facility or distributor creates the IMF package, not the filmmaker.
+- **Festival distribution:** No. Festivals want DCPs (DCP-o-matic for open source, Resolve Studio for commercial).
+- **Self-distribution:** No. Platforms accept ProRes or H.264/H.265.
+- **Archiving:** IMF is excellent for versioned archives (component-based), but DPX/EXR + WAV is simpler for an indie.
+
+**Bottom line:** Know that IMF exists. Know that open source tools can validate and inspect IMF packages. But for indie filmmaking, DCP (via DCP-o-matic or Resolve Studio) and ProRes deliverables are what you'll actually create yourself. If a platform requires IMF, they'll either create it from your ProRes master or work with a certified facility.
+
+#### Netflix Test Content
+
+Netflix published [Meridian](https://opencontent.netflix.com), a Creative Commons short film available as a complete IMF package (UHD, 4K 59.94 HDR, Dolby Atmos, ~88.5 GiB). Use it to test and learn IMF workflows with the open source tools.
 
 ### Color Space Summary per Delivery Format
 

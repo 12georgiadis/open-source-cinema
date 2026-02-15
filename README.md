@@ -847,6 +847,9 @@ But for **installation work, experimental cinema, and as a development platform*
 | **RAW Calculator** | [rawcalculator.netlify.app](https://rawcalculator.netlify.app/calculator_desktop) | Calculate recording params for 18 Canon models |
 | **DaVinci Resolve** | [blackmagicdesign.com](https://www.blackmagicdesign.com/products/davinciresolve) | Color grading and delivery |
 | **DCP-o-matic** | [dcpomatic.com](https://dcpomatic.com/) | Free DCP creation |
+| **OpenTimelineIO** | [GitHub](https://github.com/AcademySoftwareFoundation/OpenTimelineIO) | Open source timeline interchange (ASWF/Pixar, ~1,800 stars) |
+| **Photon** (Netflix) | [GitHub](https://github.com/Netflix/photon) | IMF package validation |
+| **IMFTool** | [GitHub](https://github.com/IMFTool/IMFTool) | IMF CPL editing and asset management |
 
 ### Magic Lantern Downloads
 
@@ -882,6 +885,13 @@ But for **installation work, experimental cinema, and as a development platform*
 - [SD Overclocking DIGIC 5](https://www.magiclantern.fm/forum/index.php?topic=25841.0)
 - [Canon EOS R development](https://www.magiclantern.fm/forum/index.php?topic=22770.0)
 - [Bilal's crop_rec_4k for 650D/700D](https://www.magiclantern.fm/forum/index.php?topic=25784.0)
+
+### Companion Documents in This Repo
+
+| Document | Description |
+|---|---|
+| **[ML RAW Workflows: DaVinci Resolve & Final Cut Pro](ML-RAW-Workflows-Resolve-FCPX.md)** | Complete pro workflow guide: CinemaDNG in Resolve, CST node trees, multi-camera matching, DCP/IMF delivery, FCP roundtrip, open source IMF tools |
+| **[Agent-Driven Editing: Where Cinema Meets Code](Agent-Driven-Editing-2026.md)** | State of the art (Feb 2026): AI agents controlling NLEs, MCP servers for Resolve/FCP, OpenTimelineIO as timeline interchange, comparison of Resolve vs Blender vs FCP vs Premiere for agent control, the hybrid CLI/GUI future |
 
 ---
 
