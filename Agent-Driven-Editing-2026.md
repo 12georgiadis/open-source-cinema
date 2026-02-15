@@ -82,7 +82,7 @@ This is a real question now. Not because the technology is ready (it isn't), but
 
 | Project | Status | Notes |
 |---------|--------|-------|
-| [Adobe Premiere Pro MCP](https://playbooks.com/mcp/adobe-premiere-pro) | Early stage | Many tools scaffolded but unimplemented. UXP scripting experimental |
+| [Adobe Premiere Pro MCP](https://github.com/hetpatel-11/Adobe_Premiere_Pro_MCP) | Early stage | Many tools scaffolded but unimplemented. UXP scripting experimental |
 
 **Blender VSE:** No dedicated MCP server exists for video editing. [3D-Agent](https://3d-agent.com/blender-ai) controls Blender for 3D modeling via MCP, but nothing targets the VSE specifically.
 
@@ -678,9 +678,9 @@ An agent can:
 The FCPXML DTD for `smart-collection` supports rules: `includesAny`, `includesAll`, `doesNotIncludeAny`, `doesNotIncludeAll`. Combined with `match-text` (search in notes), `match-ratings`, `match-media` (format, framerate), and `match-time` (date ranges), smart collections can be as precise as needed.
 
 **Tools for generating FCPXML programmatically:**
-- [pyFcpxmlCreator](https://github.com/zeibou/pyFcpxmlCreator) (Python)
-- [Pipeline Neo](https://github.com/TheAcharya/Pipeline) (Swift, professional framework)
-- [bmjs-fcpxml](https://github.com/nicb/bmjs-fcpxml) (Node.js)
+- Python `xml.etree.ElementTree` + [Apple FCPXML DTD](https://developer.apple.com/documentation/professional-video-applications/fcpxml-reference) (the most reliable approach)
+- [Pipeline Neo](https://github.com/TheAcharya/pipeline-neo) (Swift, professional framework)
+- [bmjs-fcpxml](https://github.com/brent258/bmjs-fcpxml) (Node.js)
 - [fcpxml-mcp-server](https://github.com/DareDev256/fcpxml-mcp-server) -- 34 tools, can be used by Claude directly
 
 ### The Complete Assistant Editor Agent Pipeline

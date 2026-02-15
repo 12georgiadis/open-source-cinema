@@ -357,7 +357,7 @@ Edit with lightweight proxies (ProRes) > Export FCPXML > Import into Resolve > R
 ### Common Pitfalls
 - **Speed effects**: Optical flow retimed clips from FCP import as composite clips. Open each composite, apply CinemaDNG settings, return to main timeline
 - **File name duplication**: The #1 cause of conform failures. Never rename files
-- **AIF audio**: Resolve does not import AIF files. Convert to WAV before round-tripping
+- **AIFF audio**: Resolve does not import AIFF files. Convert to WAV before round-tripping
 - **Handles**: Add 1+ second of extra media at in/out points before export, or handles cannot be extended after conform
 - **Mixed frame rates**: Use the "Mixed frame rate format" option during FCPXML import
 
@@ -482,7 +482,7 @@ Source video (ProRes, DPX, EXR)
 
 #### Netflix Test Content
 
-Netflix published [Meridian](https://opencontent.netflix.com), a Creative Commons short film available as a complete IMF package (UHD, 4K 59.94 HDR, Dolby Atmos, ~88.5 GiB). Use it to test and learn IMF workflows with the open source tools.
+Netflix published [Meridian](https://sites.google.com/netflix.com/opencontent) (requires Google account), a Creative Commons short film available as a complete IMF package (UHD, 4K 59.94 HDR, Dolby Atmos, ~88.5 GiB). Use it to test and learn IMF workflows with the open source tools.
 
 ### Color Space Summary per Delivery Format
 
@@ -770,7 +770,7 @@ For ML RAW proxy workflow: You already have ProRes proxies from Resolve or MLV A
 | Generators | No |
 | FCP-specific effects/plugins | No |
 | Tracking data / masks from Resolve | No (baked into rendered files) |
-| AIF audio | No (convert to WAV) |
+| AIFF audio | No (convert to WAV) |
 
 ### Using Compressor for Final Delivery from FCPX
 

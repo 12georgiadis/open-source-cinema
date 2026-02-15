@@ -13,7 +13,7 @@
 
 </div>
 
-I'm a filmmaker. I shoot auteur cinema with tools that weren't designed for it, or rather, tools that the manufacturers *deliberately prevented* from doing what the hardware could already do. My film [Maalbeek](https://en.unifrance.org/movie/50347/maalbeek) won the Cesar for Best Documentary Short in 2022 and premiered at the Semaine de la Critique in Cannes. Parts of [Ondes Noires](https://en.unifrance.org/movie/45236/dark-waves) were shot on Canon DSLRs with Magic Lantern RAW and matched in post with Blackmagic URSA 6K Pro and RED Dragon footage.
+I'm a filmmaker. I shoot auteur cinema with tools that weren't designed for it, or rather, tools that the manufacturers *deliberately prevented* from doing what the hardware could already do. My film [Maalbeek](https://en.unifrance.org/movie/50347/maalbeek) won the César for Best Documentary Short in 2022 and premiered at the Semaine de la Critique in Cannes. Parts of [Ondes Noires](https://en.unifrance.org/movie/45236/dark-waves) were shot on Canon DSLRs with Magic Lantern RAW and matched in post with Blackmagic and RED Dragon footage.
 
 This repo documents my workflow, my tools, and why open source matters in cinema.
 
@@ -96,7 +96,7 @@ The film uses point cloud animation (diverted photogrammetry), archival footage,
 | **Runtime** | 16 min |
 | **Format** | HD, Color |
 | **Production** | Films Grand Huit, Films a Vif |
-| **Distribution** | Square Eyes, L'Agence du court metrage |
+| **Distribution** | Square Eyes, L'Agence du court métrage |
 | **Selections** | 42 festivals |
 | **Awards** | 13+ (Cesar, Prix Andre-Martin Annecy, Golden Zagreb, Berlin-Brandenburg, Clermont-Ferrand Adobe Award + Audience Award, Golden Bayard Namur, and more) |
 
@@ -121,9 +121,9 @@ Three people unable to tolerate electromagnetic radiation speak about what they 
 | **Runtime** | 21 min |
 | **Format** | HD 4K, CinemaScope (2.39:1), Dolby 5.1 |
 | **Production** | Le Fresnoy, Studio national des arts contemporains |
-| **Awards** | Prix Festivals Connexion (Clermont-Ferrand), Grand Prix + Prix de la Jeunesse (Regensburg), Best Documentary (Cyprus), Mention speciale du jury (Brussels) |
+| **Awards** | Prix Festivals Connexion (Clermont-Ferrand), Grand Prix + Prix de la Jeunesse (Regensburg), Best Documentary (Cyprus), Mention spéciale du jury (Brussels) |
 
-Parts of the film were shot on Canon DSLRs with Magic Lantern RAW. The footage was matched in post-production with Blackmagic URSA 6K Pro and RED Dragon material using the DaVinci Wide Gamut / DaVinci Intermediate color pipeline described below.
+Parts of the film were shot on Canon DSLRs with Magic Lantern RAW. The footage was matched in post-production with Blackmagic and RED Dragon material using the DaVinci Wide Gamut / DaVinci Intermediate color pipeline described below.
 
 ---
 
@@ -552,7 +552,7 @@ I use Final Cut Pro for editing and finishing, with DaVinci Resolve for color gr
 
 ### Phase 8: Multi-Camera Matching
 
-Matching ML RAW with cinema cameras in the same project. This is the workflow used on productions mixing Canon 5D3 with Blackmagic URSA 6K Pro, RED Dragon, or ARRI ALEXA.
+Matching ML RAW with cinema cameras in the same project. This is the workflow used on productions mixing Canon 5D3 with Blackmagic, RED Dragon, or ARRI ALEXA.
 
 **The principle**: convert all cameras to the same working color space (DaVinci Wide Gamut / DaVinci Intermediate), then grade in that space, then output-transform to delivery.
 
@@ -561,7 +561,7 @@ Matching ML RAW with cinema cameras in the same project. This is the workflow us
 | Camera | Input Color Space | Input Gamma | CST to DWG/DI |
 |---|---|---|---|
 | **Canon 5D3 ML RAW** | BMD Film or Rec.709 (from Camera RAW tab) | BMD Film or Linear | CST node: input space > DWG/DI |
-| **Blackmagic URSA 6K Pro** | DaVinci Wide Gamut | DaVinci Intermediate | No CST needed (decode directly to DWG/DI in Camera RAW tab) |
+| **Blackmagic** (BRAW) | DaVinci Wide Gamut | DaVinci Intermediate | No CST needed (decode directly to DWG/DI in Camera RAW tab) |
 | **RED Dragon** | REDWideGamutRGB | Log3G10 (IPP2) | CST: RWG/Log3G10 > DWG/DI |
 | **ARRI ALEXA** | ARRI Wide Gamut 3 | ARRI LogC3 | CST: AWG3/LogC3 > DWG/DI |
 
@@ -575,7 +575,7 @@ Group D (ARRI):       Pre-Clip CST: AWG3/LogC3 --> DWG/DI (Tone Mapping: None)
 Timeline:             Output CST: DWG/DI --> Rec.709 Gamma 2.4 (Tone Mapping: DaVinci)
 ```
 
-Once all cameras are in the same working space, grading is identical across the board. Skin tones match, contrast matches, color rendering is unified. This is how we matched the 5D3 footage with the URSA 6K Pro and RED Dragon on Ondes Noires.
+Once all cameras are in the same working space, grading is identical across the board. Skin tones match, contrast matches, color rendering is unified. This is how the 5D3 footage was matched with Blackmagic and RED Dragon material on Ondes Noires.
 
 ### Phase 9: Sound & DCP Delivery
 
