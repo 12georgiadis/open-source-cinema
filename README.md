@@ -1,6 +1,17 @@
+<div align="center">
+
 # Open Source Cinema
 
 **RAW video filmmaking with hacked cameras and open hardware.**
+
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
+![Magic Lantern](https://img.shields.io/badge/Magic_Lantern-RAW-cc0000?style=flat-square)
+![Canon 5D III](https://img.shields.io/badge/Canon-5D_Mark_III-black?style=flat-square&logo=canon&logoColor=white)
+![DaVinci Resolve](https://img.shields.io/badge/DaVinci-Resolve-3388FF?style=flat-square&logo=davinciresolve&logoColor=white)
+![MLV App](https://img.shields.io/badge/MLV_App-Open_Source-green?style=flat-square)
+![CinemaDNG](https://img.shields.io/badge/Format-CinemaDNG-purple?style=flat-square)
+
+</div>
 
 I'm a filmmaker. I shoot auteur cinema with tools that weren't designed for it, or rather, tools that the manufacturers *deliberately prevented* from doing what the hardware could already do. My film [Maalbeek](https://en.unifrance.org/movie/50347/maalbeek) won the Cesar for Best Documentary Short in 2022 and premiered at the Semaine de la Critique in Cannes. Parts of [Ondes Noires](https://en.unifrance.org/movie/45236/dark-waves) were shot on Canon DSLRs with Magic Lantern RAW and matched in post with Blackmagic URSA 6K Pro and RED Dragon footage.
 
@@ -42,6 +53,7 @@ This repo documents my workflow, my tools, and why open source matters in cinema
   - [Phase 9: Sound & DCP Delivery](#phase-9-sound--dcp-delivery)
 - [Aspect Ratios & Framing](#aspect-ratios--framing)
 - [Equipment](#equipment)
+- [Camera Kit: Upcoming Films](#camera-kit-upcoming-films)
 - [The Future: EOS R & RF Mount](#the-future-eos-r--rf-mount)
 - [AXIOM: The Open Source Cinema Camera](#axiom-the-open-source-cinema-camera)
 - [Resources & Links](#resources--links)
@@ -69,6 +81,12 @@ This is not about saving money. It's about **control**. Understanding every step
 
 **Cesar for Best Documentary Short Film (2022) | Cannes, Semaine de la Critique (2020)**
 
+<div align="center">
+
+[![Maalbeek - Teaser](https://vumbnail.com/436720598.jpg)](https://vimeo.com/436720598)
+
+</div>
+
 On March 22, 2016, a suicide bomber detonated himself in the middle car of a subway train at Maalbeek station in Brussels. Sabine, a young woman seated behind him, was seriously injured. Three months later she awoke from a coma remembering nothing of the explosion. The film follows her search for a missing image of an event she has no memory of.
 
 The film uses point cloud animation (diverted photogrammetry), archival footage, CCTV images, and double exposures to create a mental landscape of fragmented memory.
@@ -89,6 +107,12 @@ European Film Award candidate (2021).
 ### Ondes Noires (Dark Waves, 2017)
 
 **Clermont-Ferrand 2018 | IDFA 2017**
+
+<div align="center">
+
+[![Ondes Noires - Teaser](https://img.youtube.com/vi/-LZADIJ5jhA/hqdefault.jpg)](https://www.youtube.com/watch?v=-LZADIJ5jhA)
+
+</div>
 
 Three people unable to tolerate electromagnetic radiation speak about what they feel, how it destroys their lives, and how they try to escape it. The film materializes these invisible waves through experimental image work.
 
@@ -132,7 +156,7 @@ What the community achieved through reverse engineering:
 - **SD card overclocking**: the `sd_uhs` module pushes the SD controller from Canon's conservative 24 MHz up to 240 MHz, unlocking up to 100 MB/s write speeds.
 - **30-minute limit bypass**: removed the recording limitation imposed for EU customs taxation reasons.
 
-The project was started by [Trammell Hudson](https://trmm.net/Magic_Lantern_firmware/) in 2009. It has been used on all seven continents and aboard the International Space Station. In 2025, a new team ([names_are_hard](https://www.magiclantern.fm/forum/), g3ggo, [kitor](https://www.magiclantern.fm/forum/index.php?topic=22770.0), WalterSchulz) revived the project with support expanding to DIGIC 6/7 cameras (200D, 750D, 6D II, 7D II).
+The project was started by [Trammell Hudson](https://trmm.net/Magic_Lantern_firmware/) in 2009. It has been used on all seven continents. In 2025, a new team ([names_are_hard](https://www.magiclantern.fm/forum/), [g3gg0](https://www.magiclantern.fm/forum/), [kitor](https://www.magiclantern.fm/forum/index.php?topic=22770.0), WalterSchulz) revived the project with support expanding to DIGIC 6/7 cameras (200D, 750D, 6D II, 7D II).
 
 ### Firmware & Builds
 
@@ -160,7 +184,7 @@ For the Canon 5D Mark III, two firmware versions are supported:
 
 ### Sensor Readout Modes
 
-Understanding sensor readout is essential. The 5D Mark III's sensor (5796x3870 pixels) is too large to read entirely at video frame rates. Canon's firmware uses various tricks to reduce the data:
+Understanding sensor readout is essential. The 5D Mark III's sensor (5760x3840 effective pixels) is too large to read entirely at video frame rates. Canon's firmware uses various tricks to reduce the data:
 
 | Mode | How It Works | Quality | Aliasing |
 |---|---|---|---|
@@ -184,7 +208,7 @@ Canon's stock 1080p video mode uses **line skipping with some binning** (3x3 wit
 | **1080p 50/60** | 1920x960/800 | 10-12-bit | 3x3 binning | 50/60 | Yes | Limited |
 | **5.7K anamorphic** | ~5425x2300 (desqueezed) | 10-bit | 1x3 binning | 24 | With card spanning | Broken |
 | **1080p 1:1 crop** | 1920x1080 | 10/12-bit | ~2.6x | 50/60 | Yes | **Color** (60p) |
-| **Full sensor** | 5796x3870 | 14-bit | None | 7.4 fps | Burst | Broken |
+| **Full sensor** | 5760x3840 | 14-bit | None | 7.4 fps | Burst | Broken |
 
 ### The 3:2 Mode
 
@@ -204,7 +228,7 @@ The 3:2 aspect ratio (1.5:1) is uncommon in cinema but extremely versatile in po
 
 ### Crop Modes & Bilal's 5.7K Speculation
 
-[Bilal (theBilalFakhouri)](https://www.magiclantern.fm/forum/index.php?topic=25784.0) did the original `crop_rec` work on the 650D/700D, proving that these sensors could be pushed to use different readout modes. Danne then ported and extended this to the 5D Mark III.
+[Bilal (theBilalFakhouri)](https://www.magiclantern.fm/forum/index.php?topic=25784.0) adapted `crop_rec_4k` for the 650D/700D, proving that these budget sensors could be pushed to use different readout modes beyond what a1ex's original `crop_rec` module achieved. Danne then ported and extended this to the 5D Mark III.
 
 **The 5.7K dream**: If Bilal's `crop_rec` techniques were fully implemented on the 5D Mark III with color live view during recording, the 5D3 would become the cheapest camera in the world shooting 5.7K RAW with:
 - An image that has a distinctive softness, almost vintage rendering from the 3x3/1x3 binning
@@ -608,6 +632,15 @@ Custom cropmarks for these ratios are loaded into Magic Lantern for on-set frami
 
 ## Equipment
 
+<div align="center">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Canon_EOS_5D_Mark_III.jpg/300px-Canon_EOS_5D_Mark_III.jpg" alt="Canon 5D Mark III">
+
+*Canon EOS 5D Mark III. Photo: [decltype](https://en.wikipedia.org/wiki/User:Decltype), CC BY-SA 3.0*
+
+</div>
+
+### Magic Lantern RAW Setup
+
 | Item | Role | Notes |
 |---|---|---|
 | **Canon 5D Mark III** | Primary cinema body | Full frame, 14-bit RAW, Dual ISO, best ML support |
@@ -615,6 +648,95 @@ Custom cropmarks for these ratios are loaded into Magic Lantern for on-set frami
 | **SanDisk Extreme Pro CF** | Primary recording media | 160 MB/s minimum for continuous recording |
 | **Lexar 1667x SD** | Overclocked SD slot | For card spanning (dual card recording) |
 | **Mosaic Engineering VAF** | Optical low-pass filter | Essential for 7D video |
+
+---
+
+## Camera Kit: Upcoming Films
+
+For my upcoming features, I use a three-camera kit chosen for complementary strengths across different shooting situations. This is what I recommend for indie filmmaking.
+
+<div align="center">
+
+| <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/IPhone_15_Pro_Max_Vector.svg/120px-IPhone_15_Pro_Max_Vector.svg.png" alt="iPhone 15 Pro Max" height="140"> | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Canon_R6_und_RF_85_2%2C0-8065.jpg/200px-Canon_R6_und_RF_85_2%2C0-8065.jpg" alt="Canon R6 Mark III" height="140"> | <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Blackmagic_Pocket_Cinema_Camera_4K_-_3.jpg/200px-Blackmagic_Pocket_Cinema_Camera_4K_-_3.jpg" alt="BMPCC 6K Pro" height="140"> |
+|:---:|:---:|:---:|
+| **iPhone 15 Pro Max** | **Canon EOS R6 Mark III** | **Blackmagic Pocket Cinema Camera 6K Pro** |
+
+</div>
+
+### Specs Comparison
+
+| | iPhone 15 Pro Max | Canon EOS R6 Mark III | BMPCC 6K Pro |
+|---|---|---|---|
+| **Sensor** | 1/1.28" (48 MP main) | Full-frame 32.5 MP | Super 35 (21.2 MP) |
+| **Max resolution** | 4K ProRes | 7K RAW (12-bit) | 6K BRAW (12-bit) |
+| **Dynamic range** | ~12 stops (Apple Log) | 15+ stops (Canon Log 2) | 13 stops |
+| **Log profile** | Apple Log | Canon Log 2 / Canon Log 3 | Blackmagic Film (Gen 5) |
+| **Slow motion** | 1080p 240 fps | 4K 120 fps (with audio) | 2.8K 120 fps |
+| **Built-in ND** | No | No | Yes (2/4/6 stop motorized) |
+| **IBIS** | Sensor-shift OIS | 8.5 stops | No |
+| **Dual base ISO** | No | 800 / 6400 | 400 / 3200 |
+| **Lens mount** | Fixed | Canon RF | Canon EF |
+| **Price (body)** | ~$1,199 (256 GB) | ~$2,799 | ~$2,495 |
+
+### When I Use Each Camera
+
+**iPhone 15 Pro Max** -- Guerrilla, discreet, and run-and-gun situations.
+
+- Documentary work where a cinema camera would be intrusive or impossible
+- Behind-the-scenes, B-roll, personal footage
+- ProRes 422 HQ in 10-bit with Apple Log means it intercuts with cinema cameras in a DaVinci Resolve grade
+- The phone disappears. People forget they're being filmed. That changes what you capture.
+- Limitation: 4K 30 fps max for ProRes on internal storage (4K 60 fps requires external SSD via USB-C)
+
+**Canon EOS R6 Mark III** -- Primary narrative camera. The hybrid workhorse.
+
+- 7K internal RAW (12-bit Canon RAW Light) with oversampled 4K
+- Canon Log 2 with Cinema Gamut gives 15+ stops, matching Cinema EOS cameras (C50, C80)
+- 4K 120 fps with audio for slow motion
+- Dual base ISO 800/6400 for available light work
+- Full RF mount ecosystem + EF adapter for legacy glass
+- 8.5-stop IBIS for handheld documentary or Steadicam-free shooting
+- This is essentially a Cinema EOS camera in a hybrid body at $2,799
+
+**Blackmagic Pocket Cinema Camera 6K Pro** -- Controlled environments, interviews, studio work.
+
+- 6K Blackmagic RAW at 12-bit, the most flexible codec in this price range
+- Built-in motorized ND filters (2/4/6 stop) -- no external ND kit needed
+- 13 stops of dynamic range with Gen 5 color science
+- Native EF mount: access to the entire Canon EF lens ecosystem, including cinema glass
+- Includes a full DaVinci Resolve Studio license ($295 value)
+- 5" tilting HDR touchscreen (1500 nits) readable outdoors
+- Best color science per dollar. The Blackmagic look is distinctive and grading-friendly.
+
+### Why These Three
+
+The total kit costs under $6,500 for three camera bodies that cover:
+
+- **Discreet/guerrilla** (iPhone) > **hybrid narrative** (R6 III) > **controlled cinema** (BMPCC 6K Pro)
+- All three shoot log profiles that can be matched in DaVinci Resolve using the CST sandwich workflow described in this repo
+- The Canon R6 III and BMPCC 6K Pro share the EF lens ecosystem (via adapter on R6 III), so lenses move between bodies
+- Every camera outputs footage that grades together in DaVinci Wide Gamut / DaVinci Intermediate
+
+### Multi-Camera Color Matching (Extended)
+
+Adding these cameras to the CST workflow from [Phase 8](#phase-8-multi-camera-matching):
+
+| Camera | Input Color Space | Input Gamma | CST to DWG/DI |
+|---|---|---|---|
+| **iPhone 15 Pro Max** (Apple Log) | Apple Log | Apple Log | CST: Apple Log > DWG/DI |
+| **Canon R6 Mark III** (Canon Log 2) | Cinema Gamut | Canon Log 2 | CST: Cinema Gamut/CLog2 > DWG/DI |
+| **BMPCC 6K Pro** (BRAW) | DaVinci Wide Gamut | DaVinci Intermediate | No CST needed (decode directly) |
+| **Canon 5D3 ML RAW** (CinemaDNG) | BMD Film / Rec.709 | BMD Film / Linear | CST: BMDFilm > DWG/DI |
+| **RED Dragon** (R3D) | REDWideGamutRGB | Log3G10 | CST: RWG/Log3G10 > DWG/DI |
+| **ARRI ALEXA** (ARRIRAW/ProRes) | ARRI Wide Gamut 3 | ARRI LogC3 | CST: AWG3/LogC3 > DWG/DI |
+
+All footage converges into the same working space. Grade once, match everywhere.
+
+<div align="center">
+
+*Images: [TheGoldenBox](https://commons.wikimedia.org/wiki/User:TheGoldenBox) CC BY-SA 4.0, [GodeNehler](https://commons.wikimedia.org/wiki/User:GodeNehler) CC BY-SA 4.0, [KKPCW](https://commons.wikimedia.org/wiki/User:KKPCW) CC BY-SA 4.0*
+
+</div>
 
 ---
 
