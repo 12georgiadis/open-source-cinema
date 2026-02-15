@@ -35,6 +35,9 @@ This is a real question now. Not because the technology is ready (it isn't), but
   - [What Still Requires a GUI (And Why)](#what-still-requires-a-gui-and-why)
   - [The Cursor Analogy (And Where It Breaks)](#the-cursor-analogy-and-where-it-breaks)
   - [The Actual Architecture](#the-actual-architecture)
+  - [But Wait: The Multimodal Loop Changes Everything](#but-wait-the-multimodal-loop-changes-everything)
+  - [The Claude Code Editing Workflow](#the-claude-code-editing-workflow)
+  - [Where This Is Going](#where-this-is-going)
 - [My Assessment](#my-assessment)
   - [What Works Today](#what-works-today)
   - [What's Coming (2026-2027)](#whats-coming-2026-2027)
@@ -414,6 +417,124 @@ The GUI becomes a **review and direction interface**, not a manipulation interfa
 OTIO handles the data model underneath. FCPXML handles FCP-specific roundtripping. FFmpeg/MLT handle the rendering. But MCP is the conversational bridge. It's the protocol that lets the filmmaker say "try it without the music" and have the agent mute the audio track, instantly, while the timeline keeps playing.
 
 **This is the Cursor model adapted for film.** Not CLI editing. Not replacing the GUI. Embedding the agent into the GUI and turning the filmmaker into a director of the edit, not an operator of the edit.
+
+### But Wait: The Multimodal Loop Changes Everything
+
+The analysis above has a blind spot. I said the GUI is necessary because the agent can't *see* the film. **That's no longer true.**
+
+As of early 2026, multimodal LLMs can process video:
+
+| Model | Video Capability |
+|-------|-----------------|
+| **Gemini 2.0 Flash** | Processes 1+ hour of video natively, understands temporal sequence, identifies shots, actions, emotions, dialogue |
+| **Gemini 2.5 Pro** | Extended context for long-form video analysis |
+| **GPT-4o** | Image analysis, video frame extraction |
+| **Claude** | Image/screenshot analysis (not native video yet, but frame-by-frame works) |
+
+This closes the perception gap. Consider this workflow:
+
+```
+CLAUDE CODE CLI (or any coding agent)
+  |
+  | reads FCPXML as text (it's XML)
+  | reads OTIO as text (it's JSON)
+  v
+AGENT MANIPULATES TIMELINE
+  |
+  | modifies XML/JSON structure
+  | (insert clip, trim, reorder, add transition)
+  v
+FFMPEG / MELT RENDERS LOW-RES PREVIEW
+  |
+  | outputs .mp4 preview
+  v
+MULTIMODAL LLM WATCHES THE PREVIEW
+  |
+  | Gemini analyzes: pacing, continuity, emotional arc,
+  | shot composition, audio-visual sync
+  v
+AGENT EVALUATES AND ADJUSTS
+  |
+  | "the cut at 02:15 is too abrupt"
+  | "the wide shot at 03:40 breaks the intimacy"
+  | "the rhythm slows down in act 2"
+  v
+LOOP (modify FCPXML --> render --> watch --> evaluate)
+  |
+  v
+FILMMAKER REVIEWS FINAL RESULT
+  |
+  | imports FCPXML into FCP or Resolve
+  | watches on calibrated monitor
+  | makes final creative adjustments
+  v
+DONE
+```
+
+This is **exactly the Cursor loop**:
+1. Agent reads code (= reads FCPXML/OTIO)
+2. Agent modifies code (= modifies timeline data)
+3. Tests run (= FFmpeg renders preview)
+4. Agent evaluates results (= multimodal model watches the render)
+5. Loop until satisfactory
+6. Human reviews and approves (= filmmaker watches in NLE)
+
+The key insight: **FCPXML is the best format for this** because:
+- It's the most expressive XML timeline format (FCP's magnetic timeline model is richer than EDL or basic AAF)
+- An LLM can read and write XML natively
+- FCP is the most filmmaker-friendly NLE for the final review step
+- The FCPXML spec is [publicly documented by Apple](https://developer.apple.com/documentation/professional-video-applications/fcpxml-reference)
+- OTIO has a bidirectional FCPXML adapter, so OTIO and FCPXML are interchangeable
+
+And **OTIO is the universal layer** because:
+- OTIO is JSON (even more LLM-native than XML)
+- OTIO converts to/from FCPXML, AAF, EDL
+- OTIO has a Python API that a Claude Code agent can call directly
+- OTIO's experimental editing commands (insert, overwrite, roll) mean the agent can use semantic editing operations, not raw XML surgery
+
+### The Claude Code Editing Workflow
+
+Concretely, what this looks like with Claude Code (or any CLI coding agent):
+
+```bash
+# Agent reads the current edit
+cat project.fcpxml
+
+# Agent modifies the timeline (via OTIO Python, or direct XML manipulation)
+python3 -c "
+import opentimelineio as otio
+tl = otio.adapters.read_from_file('project.fcpxml')
+# ... manipulate timeline ...
+otio.adapters.write_to_file(tl, 'project_v2.fcpxml')
+"
+
+# Agent renders a low-res preview
+ffmpeg -i project_v2.fcpxml -vf scale=960:540 -c:v libx264 -preset ultrafast preview.mp4
+# (in practice: melt or Resolve headless for FCPXML rendering)
+
+# Multimodal model watches the preview and evaluates
+# (via API call to Gemini, or Claude vision on extracted frames)
+
+# Agent adjusts based on evaluation, loops
+
+# Filmmaker imports final FCPXML into FCP for review
+```
+
+The NLE becomes the **last mile**. The filmmaker opens the FCPXML in FCP, watches it on a proper monitor, makes the final 10-20% of adjustments that require human perception. The agent handled the other 80-90% iteratively.
+
+### Where This Is Going
+
+Three converging vectors:
+
+**1. CLI agents get better at structured data.** Claude Code already manipulates JSON, YAML, XML, TOML. FCPXML and OTIO are just more of the same. No new capability needed -- just prompting and tool use.
+
+**2. Multimodal context windows grow.** Gemini already handles 1+ hour of video. As context windows expand, agents will be able to "watch" entire rough cuts and reason about narrative structure across the full film. This is not hypothetical. It works today for short-form. Feature length is a scaling problem, not a capability problem.
+
+**3. OTIO matures as a headless editing model.** The experimental editing commands (v0.16+) are becoming real. When OTIO has full insert/overwrite/ripple/roll operations with a stable API, it becomes a complete headless editing data model. Add MLT or FFmpeg as the render engine, and you have a CLI NLE.
+
+The endpoint: **a filmmaker working in Claude Code (or its successor) the way a programmer works in Cursor.** Not staring at a timeline GUI for 12 hours a day. Directing an agent that builds, modifies, and renders edits. Reviewing the output. Giving notes. The agent executes. The NLE is the final delivery tool, not the creative workspace.
+
+This won't replace the monteur/monteuse on a Jacques Audiard film. But it will let a filmmaker who edits their own work move 5x faster through the mechanical parts, and spend their creative energy on the decisions that actually make the film.
 
 ---
 
