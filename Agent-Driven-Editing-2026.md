@@ -38,6 +38,17 @@ This is a real question now. Not because the technology is ready (it isn't), but
   - [But Wait: The Multimodal Loop Changes Everything](#but-wait-the-multimodal-loop-changes-everything)
   - [The Claude Code Editing Workflow](#the-claude-code-editing-workflow)
   - [Where This Is Going](#where-this-is-going)
+- [What Editing Actually Is (And What It Isn't)](#what-editing-actually-is-and-what-it-isnt)
+  - [80% Off the Timeline](#80-off-the-timeline)
+  - [The Timeline Part](#the-timeline-part)
+  - [What Agents Should Actually Automate](#what-agents-should-actually-automate)
+- [AI Tools for FCP: Keywords, Smart Collections, Logging](#ai-tools-for-fcp-keywords-smart-collections-logging)
+  - [FCP 12 Built-in AI](#fcp-12-built-in-ai-january-2026)
+  - [Third-Party Tools](#third-party-tools-ranked-by-relevance-for-features)
+  - [Smart Collections via FCPXML](#smart-collections-via-fcpxml)
+  - [The Complete Assistant Editor Agent Pipeline](#the-complete-assistant-editor-agent-pipeline)
+  - [Sound Department Automation](#sound-department-automation)
+  - [What's Still Missing](#whats-still-missing)
 - [My Assessment](#my-assessment)
   - [What Works Today](#what-works-today)
   - [What's Coming (2026-2027)](#whats-coming-2026-2027)
@@ -535,6 +546,239 @@ Three converging vectors:
 The endpoint: **a filmmaker working in Claude Code (or its successor) the way a programmer works in Cursor.** Not staring at a timeline GUI for 12 hours a day. Directing an agent that builds, modifies, and renders edits. Reviewing the output. Giving notes. The agent executes. The NLE is the final delivery tool, not the creative workspace.
 
 This won't replace the monteur/monteuse on a Jacques Audiard film. But it will let a filmmaker who edits their own work move 5x faster through the mechanical parts, and spend their creative energy on the decisions that actually make the film.
+
+---
+
+## What Editing Actually Is (And What It Isn't)
+
+Most of the AI-editing discourse gets this wrong because it imagines editing as *operating a timeline*. Dragging clips, trimming, applying transitions. That's not editing. That's execution.
+
+Here's what a feature film edit actually looks like in practice:
+
+### 80% Off the Timeline
+
+The real work of a monteur happens away from the NLE:
+
+- **Structural discussions with the filmmaker.** Standing at a board covered in post-its, color-coded by scene/character/theme. Moving them around. Saying "what if we open with the ending?" That's the edit. The timeline is just where you execute that decision afterwards.
+- **Writing.** Scene descriptions, structural notes, editing notes for the filmmaker, notes for the sound designer, VFX briefs, continuity reports. A monteur on a feature writes more than they trim.
+- **Spreadsheets.** Shot lists, dailies reports, VFX tracking, delivery specs, music cue sheets. Excel is an editing tool.
+- **Talking.** The relationship between filmmaker and editor is a conversation. The edit emerges from that dialogue. The best cuts come from a monteur saying "I tried something, watch this" and the filmmaker responding with their body language before they say a word.
+
+### The Timeline Part
+
+When you're actually on the NLE, a surprising amount is mechanical:
+
+- Trimming. Extending or shortening a clip by a few frames.
+- Reordering. Moving a scene earlier or later.
+- Trying versions. "Let's try it without the music." "What if we cut the flashback?"
+- Conforming. Matching proxies to originals.
+- Exports. AAF for sound, XML for color, EDL for VFX, DCP for festivals.
+
+This mechanical work is exactly what agents can handle.
+
+### What Agents Should Actually Automate
+
+The insight is: **the agent doesn't replace the monteur. The agent replaces the assistant editor.**
+
+On a feature film, the assistant editor handles:
+
+| Task | Current Method | Agent Method |
+|------|---------------|-------------|
+| Ingest & organize dailies | Manual folder structure, metadata entry | Script-based: read card structure, create bins by day/scene/camera, apply naming conventions |
+| Proxy generation | FCP/Resolve native or FFmpeg batch | Automated: detect source format, generate matching proxies, verify integrity |
+| Sync audio | Tentacle Sync, PluralEyes, manual | Automated: detect TC or waveform match, sync, verify drift |
+| Transcription | Manual or Simon Says | Whisper/WhisperX: transcribe all dialogue, identify speakers, generate FCPXML with keyword ranges |
+| Logging | Manually watching every take and noting content | AI vision: tag shot type, framing, who's in frame, actions, emotions. Generate FCPXML keywords and smart collections |
+| Script integration | Manually matching takes to script lines | Cross-reference transcription with script, auto-link by dialogue match |
+| LUT application | Manual per-clip in Resolve or batch | Automated: read camera metadata, apply correct show LUT per source |
+| Build dailies | Render with burn-in (TC, clip name, date) | Automated: FFmpeg or Resolve render queue with metadata overlay |
+| Roundtrips | Export AAF/FCPXML, manage versions manually | Agent tracks versions, generates correct format for each department, manages handles |
+| QC | Watch everything, check for flash frames/gaps/sync | Automated scan: flash frames, gaps, audio sync drift, format compliance |
+| Delivery | Manual render presets per deliverable | Agent manages delivery spec sheet, renders all formats, validates each |
+
+**Every single one of these tasks is already automatable today** with existing tools. The problem isn't capability. It's that nobody has assembled the pipeline.
+
+---
+
+## AI Tools for FCP: Keywords, Smart Collections, Logging
+
+As of February 2026, here's what exists for automated logging and annotation in Final Cut Pro:
+
+### FCP 12 Built-in AI (January 2026)
+
+| Feature | What It Does | Limitation |
+|---------|-------------|-----------|
+| **Visual Search** | Natural language search in footage: "clouds", "someone running", "a car". Local ML on Apple Silicon. | Doesn't create persistent keywords. Search-on-demand only. |
+| **Transcript Search** | Transcribes source clips (not just timelines). Search by exact words or natural language. | Requires Apple Silicon + macOS 15.6. |
+| **Find People** | Detects face count, infers shot type (wide/medium/close-up). Creates analysis keywords. | No individual face recognition (doesn't name people). |
+| **Beat Detection** | Analyzes music for rhythm alignment. | For music videos, not general logging. |
+
+Apple's approach: search on demand, not structured annotation. Useful for finding shots, but doesn't build a structured metadata layer.
+
+### Third-Party Tools (Ranked by Relevance for Features)
+
+**Eddie AI** ([heyeddie.ai](https://www.heyeddie.ai/)) -- The most advanced AI logging tool.
+- Analyzes rushes locally, creates summaries, identifies soundbites, classifies shot types
+- Groups clips by content, generates hierarchical bins
+- Exports FCPXML with transcript ranges searchable in FCP
+- Rough cut generation from natural language prompts
+- Supports Premiere, Resolve, and FCP
+- Limitation: max 10 A-roll or 50 B-roll clips per project
+
+**Lumberjack System** ([lumberjacksystem.com](https://www.lumberjacksystem.com/)) -- The professional reference for doc logging.
+- Real-time logging on set (iOS app), keywords by category (Locations, People, Activities)
+- Free transcription in 16 languages
+- Builder NLE: text-based editing, export to FCP as timeline
+- Multi-logger support (several people logging simultaneously)
+
+**FCP Video Tag** (Ulti.Media) -- Generates FCPXML with keywords from vision AI.
+- MobileNet neural network analyzes footage frame by frame
+- Object recognition + OCR + audio transcription (Whisper, 40+ languages)
+- Tag Manager with correspondence rules ("child" detected → also add "person")
+- Exports FCPXML with keywords attached to clips
+- Fully local processing
+
+**Jumper** (Witchcraft Software) -- AI search engine as FCP Workflow Extension.
+- Natural language search inside FCP, reads library files directly
+- Better search results than FCP 12's Visual Search in comparative tests
+- No keywords generated, search-only
+
+**Peakto** (CYME) -- DAM with local AI, FCP integration.
+- Indexes FCP libraries, generates transcriptions, detects people
+- Suggests keywords (accept/reject), aesthetic analysis
+- Exports Video Bins as XML to FCP, Resolve, Premiere
+- NAB Show 2025 Product of the Year
+
+**Simon Says** ([simonsaysai.com](https://www.simonsaysai.com/)) -- Transcription with native FCP integration.
+- FCP Workflow Extension, 100 languages, ~95% accuracy
+- Returns speaker-labeled ranges with favorites and notes into FCP clips
+- On-premise option for security-sensitive productions (SOC2, TPN)
+- Assembly mode: build sequences by selecting text passages
+
+### Smart Collections via FCPXML
+
+Apple's FCPXML spec (v1.12, FCP 12) fully supports programmatic smart collection creation:
+
+```xml
+<smart-collection name="Close-ups Scene 4" match="all">
+  <match-keywords enabled="1" rule="includesAll" value="close-up, scene-4"/>
+</smart-collection>
+
+<smart-collection name="All Dialogue Takes" match="any">
+  <match-keywords enabled="1" rule="includesAny" value="dialogue, interview"/>
+</smart-collection>
+```
+
+An agent can:
+1. Analyze rushes (via Whisper for dialogue, via vision model for shot type/content)
+2. Generate FCPXML with keywords per clip and keyword ranges per segment
+3. Define smart collections based on the keywords
+4. Import into FCP → the entire logging structure appears automatically
+
+The FCPXML DTD for `smart-collection` supports rules: `includesAny`, `includesAll`, `doesNotIncludeAny`, `doesNotIncludeAll`. Combined with `match-text` (search in notes), `match-ratings`, `match-media` (format, framerate), and `match-time` (date ranges), smart collections can be as precise as needed.
+
+**Tools for generating FCPXML programmatically:**
+- [pyFcpxmlCreator](https://github.com/zeibou/pyFcpxmlCreator) (Python)
+- [Pipeline Neo](https://github.com/TheAcharya/Pipeline) (Swift, professional framework)
+- [bmjs-fcpxml](https://github.com/nicb/bmjs-fcpxml) (Node.js)
+- [fcpxml-mcp-server](https://github.com/DareDev256/fcpxml-mcp-server) -- 34 tools, can be used by Claude directly
+
+### The Complete Assistant Editor Agent Pipeline
+
+Assembling all these tools into a single automated pipeline:
+
+```
+CAMERA CARDS ARRIVE
+  |
+  v
+INGEST (Silverstack v9 or Hedge)
+  - Checksum-verified copy
+  - Automatic folder structure by camera/day/scene
+  - Metadata preservation
+  |
+  v
+PROXY GENERATION (FFmpeg batch or FCP native)
+  - Match source format
+  - ProRes Proxy or H.264 at 50%
+  - Preserve timecode and reel names
+  |
+  v
+AUDIO SYNC (Tentacle Sync Studio or Syncaila)
+  - TC-based sync from Tentacle devices
+  - Waveform match as fallback
+  - Verify sync with sample check
+  |
+  v
+AI ANALYSIS (parallel agents)
+  |
+  +-- WHISPER/WHISPERX: transcribe all dialogue
+  |   - Speaker diarization
+  |   - Word-level timestamps
+  |   - Output: SRT + keyword ranges
+  |
+  +-- VISION MODEL (Gemini / GPT-4o / local model):
+  |   - Shot type (CU/MCU/MS/WS/EWS)
+  |   - Who's in frame (face detection → character names)
+  |   - Actions and emotions
+  |   - Location/setting tags
+  |   - Output: keyword list per clip
+  |
+  +-- SCRIPT MATCHER: cross-reference transcription with script
+      - Match takes to scene/line numbers
+      - Note deviations from scripted dialogue
+      - Output: script-scene keywords
+  |
+  v
+FCPXML GENERATION (Python + pyFcpxmlCreator)
+  - Create Event with proper structure
+  - Attach keywords per clip (shot type, characters, location, scene)
+  - Attach keyword ranges for dialogue segments
+  - Define Smart Collections:
+    - By character (all clips with X)
+    - By scene number
+    - By shot type
+    - By emotion/action tags
+  - Attach transcription as clip notes
+  |
+  v
+FCP IMPORT
+  - Filmmaker opens FCP, imports FCPXML
+  - All clips are organized, keyworded, searchable
+  - Smart Collections ready to use
+  - Transcripts searchable via Transcript Search
+  |
+  v
+DAILIES (Resolve headless or FFmpeg)
+  - Show LUT applied per camera
+  - Burn-in: source TC, clip name, date, scene/take
+  - Render for filmmaker review
+  |
+  v
+FILMMAKER EDITS
+  - Structured material, everything findable
+  - The assistant editor work is done
+  - Focus on creative decisions
+```
+
+### Sound Department Automation
+
+Sound is often the most time-consuming roundtrip in post-production:
+
+| Task | Tool | Notes |
+|------|------|-------|
+| **Roles in FCP** | iXML from Sound Devices/Zoom | Professional recorders transmit channel labels that FCP reads as Roles/SubRoles automatically |
+| **Export for mix** | [X2Pro5](https://x2pro.net/) (Marquis) | FCPXML → AAF/MXF for Pro Tools. Preserves L-cuts, J-cuts, transitions, levels, fades |
+| **Reconform after recut** | [Matchbox](https://www.thecargocult.nz/products/matchbox/) (Cargo Cult) | The dominant tool. Compares old/new AAF, sends only changes to Pro Tools. Emmy Award-winning. |
+| **Stems export** | FCP Roles → separate files | D/M/E stems via role-based export for international delivery |
+
+### What's Still Missing
+
+| Gap | Status |
+|-----|--------|
+| Automatic audio classification (dialogue/ambience/SFX) | Research exists, no commercial tool |
+| True script lining (matching takes to script with continuity notes) | Still human work |
+| Single unified tool for the complete pipeline | Doesn't exist; it's an assembly of parts |
+| AI that understands narrative structure of rushes | Eddie AI is first step, not feature-film grade yet |
 
 ---
 

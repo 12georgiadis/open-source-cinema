@@ -891,7 +891,7 @@ But for **installation work, experimental cinema, and as a development platform*
 | Document | Description |
 |---|---|
 | **[ML RAW Workflows: DaVinci Resolve & Final Cut Pro](ML-RAW-Workflows-Resolve-FCPX.md)** | Complete pro workflow guide: CinemaDNG in Resolve, CST node trees, multi-camera matching, DCP/IMF delivery, FCP roundtrip, open source IMF tools |
-| **[Agent-Driven Editing: Where Cinema Meets Code](Agent-Driven-Editing-2026.md)** | State of the art (Feb 2026): AI agents controlling NLEs, MCP servers for Resolve/FCP, OpenTimelineIO as timeline interchange, comparison of Resolve vs Blender vs FCP vs Premiere for agent control, the hybrid CLI/GUI future |
+| **[Agent-Driven Editing: Where Cinema Meets Code](Agent-Driven-Editing-2026.md)** | State of the art (Feb 2026): AI agents controlling NLEs, MCP servers for Resolve/FCP, OpenTimelineIO, CLI vs GUI, multimodal editing loop, assistant editor automation, AI tools for FCP keywords/smart collections/logging, complete agent pipeline for feature film post-production |
 
 ---
 
