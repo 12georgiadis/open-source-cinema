@@ -951,6 +951,7 @@ Beyond using open source tools, I've contributed to several projects in the open
 | **[ML RAW Workflows: DaVinci Resolve & Final Cut Pro](ML-RAW-Workflows-Resolve-FCP.md)** | Complete pro workflow guide: CinemaDNG in Resolve, CST node trees, multi-camera matching, DCP/IMF delivery, FCP roundtrip, open source IMF tools |
 | **[Agent-Driven Editing: Where Cinema Meets Code](Agent-Driven-Editing-2026.md)** | State of the art (Feb 2026): AI agents controlling NLEs, MCP servers for Resolve/FCP, OpenTimelineIO, CLI vs GUI, multimodal editing loop, assistant editor automation, AI tools for FCP keywords/smart collections/logging, complete agent pipeline for feature film post-production |
 | **[ComfyUI Cinema Pipeline](https://github.com/12georgiadis/comfyui-cinema-pipeline)** | MCP server bridging ComfyUI with cinema post-production: generative workflows (Flux, Wan, SD), NLE integration, hardware specs, color management |
+| **[FCP Workflow](https://github.com/12georgiadis/fcp-workflow)** | Final Cut Pro stack: plugins (CommandPost, BRAW Toolbox, ScriptStar), FCP 12 semantic search, FCPXML MCP server, roundtrip workflows, AV1/FFV1 archiving |
 
 ---
 
@@ -983,6 +984,108 @@ I've been active on the [Magic Lantern Forum](https://www.magiclantern.fm/forum/
 - [ArcziPL's crop_rec_4k for 70D](https://www.magiclantern.fm/forum/index.php?topic=25786.msg224059#msg224059) -- DPAF evaluation
 - [dfort's experiments for 7D](https://www.magiclantern.fm/forum/index.php?topic=25880.msg195500#msg195500)
 - [DNG silent picture for film scanning](https://www.magiclantern.fm/forum/index.php?topic=9973.msg96881#msg96881) -- Full sensor resolution capture for analog film digitization
+
+---
+
+## Digital Archiving: AV1, FFV1 and Open Formats
+
+The same logic that applies to camera hacking (open formats, control over the full pipeline) applies to archiving. Proprietary codecs are a bet on the continued existence and goodwill of a company. Open formats are a bet on a standard.
+
+### The Codec Landscape
+
+| Format | Type | Use | Standard |
+|--------|------|-----|----------|
+| **FFV1** | Lossless | Archive | IETF RFC 9043 (2021) — proven, Library of Congress approved |
+| **AV1 lossless** | Lossless | Archive | SMPTE st2048 — emerging, better compression |
+| **AV1 lossy** | Lossy | Delivery | Netflix, streaming, web |
+| **ProRes 422 HQ** | Visually lossless | Intermediate | Editing, roundtrip (Apple proprietary) |
+| **CinemaDNG / BRAW** | RAW | Camera original | Open spec (CinemaDNG) or proprietary (BRAW) |
+
+**Camera originals → FFV1 or AV1 lossless. Delivery → AV1 lossy.**
+
+### FFV1 vs AV1 Lossless
+
+| Aspect | FFV1 | AV1 Lossless |
+|--------|------|--------------|
+| Proven track record | Yes (10+ years in archives) | No (lossless mode 1 year old) |
+| File size | Smallest among lossless | Slightly larger than FFV1 |
+| Encoding speed | Fast | Slower |
+| Player support | Excellent (VLC, ffmpeg) | Still spotty |
+| Institutional adoption | Library of Congress, INA | Emerging |
+
+**Recommendation**: FFV1 for camera originals now. AV1 lossless for new projects where you want smaller files and can tolerate lower encoder maturity.
+
+### AV1 Hardware Encoders
+
+**RTX 5090 (Windows)**
+- Triple 9th-gen NVENC AV1 encoders
+- 60% faster than RTX 4090
+- New "Ultra Quality" AV1 mode
+- Requires NVIDIA driver 572+
+
+**Apple Silicon M3/M4 (macOS)**
+- Hardware AV1 **decoding** ✓ (fast)
+- Hardware AV1 **encoding** ✗ — software-only (CPU, slow)
+- For AV1 encoding on Mac: offload to RTX 5090 via Tailscale
+
+### Software Encoders
+
+**SVT-AV1 3.0** (recommended)
+- AOMedia official encoder
+- **Lossless mode added in 3.0** (Feb 2025)
+- Parallel processing, scalable
+- [GitLab: AOMediaCodec/SVT-AV1](https://gitlab.com/AOMediaCodec/SVT-AV1)
+
+**av1an** (professional wrapper)
+- Scene detection, VMAF quality metrics, chunk-based encoding with resume
+- Works with SVT-AV1, libaom, rav1e
+- `pip install av1an`
+- [GitHub: master-of-zen/av1an](https://github.com/master-of-zen/av1an)
+
+### Why Netflix Uses AV1
+
+Netflix delivers to 190+ countries. AV1 provides:
+- 26-31% better compression than H.265 at equivalent quality
+- Royalty-free (no per-stream licensing fees)
+- Open standard, hardware decode on all modern devices
+
+**For an independent filmmaker**: AV1 matters for delivery (streaming, online release). It's less urgent for archiving than FFV1. Use AV1 when you're publishing, FFV1 when you're preserving.
+
+### IMF (Interoperable Master Format)
+
+For delivery to Netflix, Amazon Prime Video, Apple TV+.
+
+IMF creates a single master file that auto-versions across territories (subtitles, dubs, aspect ratios) without re-mastering.
+
+**Open source tools:**
+- [Netflix/photon](https://github.com/Netflix/photon) — IMF validator (Java)
+- [IMFTool](https://github.com/IMFTool/IMFTool) — CPL editor, versioning
+- [DSRCorporation/imf-conversion](https://github.com/DSRCorporation/imf-conversion) — utilities
+
+**Reality check for indie filmmakers**: IMF is necessary if selling to major platforms. Festival/Vimeo/VOD distribution doesn't use it. Setup requires separate tooling from FCP/Resolve (experimental IMF export exists in Resolve but not production-ready).
+
+### Archiving Workflow (Camera Originals)
+
+```bash
+# Step 1: Convert MLV to CinemaDNG (already in workflow)
+# MLV App: export to CinemaDNG lossless (SlimRAW for compression)
+
+# Step 2: Verify & checksum originals
+md5sum *.DNG > checksums.md5
+
+# Step 3: Archive with FFV1 (proven) or AV1 lossless (emerging)
+# FFV1 via ffmpeg:
+ffmpeg -i input.mov -c:v ffv1 -level 3 -coder 1 -context 1 \
+       -g 1 -slices 24 -slicecrc 1 archive.mkv
+
+# AV1 lossless via SVT-AV1 (av1an wrapper):
+av1an -i input.mov -e svt-av1 --lossless 1 -o archive.mkv
+
+# Step 4: Verify integrity
+ffmpeg -i archive.mkv -f null - 2>&1 | grep -E "error|warning"
+
+# Step 5: Store checksums alongside archive
+```
 
 ---
 
