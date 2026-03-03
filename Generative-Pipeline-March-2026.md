@@ -556,40 +556,51 @@ Documented here because it's frequently underestimated. FCP has a serious script
 
 ### Resolve ↔ FCP 12 — Roundtrip Reality (March 2026)
 
-If you pilot structure from Claude Code via Resolve MCP but edit in FCP, this is the exact bridge.
+**The honest answer: it's broken by design.**
 
-**Critical gotcha:** FCP 12 exports FCPXML **1.12** by default. Resolve does not read 1.12. Always export via `File > Export XML > Previous Version (1.9 or 1.10)`.
+FCP 12 (10.6+) is at FCPXML **1.12** and exports a bundled `.fcpxmld` package (not even plain XML). Resolve 20 caps at **1.9–1.10**. Blackmagic hasn't moved on this since Resolve 17. The gap is not a bug — neither company has prioritized fixing it.
+
+**Version gap:**
+```
+FCP 12 (2025)  → exports FCPXML 1.12 (.fcpxmld bundle)
+Resolve 20     → reads max 1.9–1.10
+Gap            → hard incompatibility, no official fix
+```
+
+**Workarounds that partially work:**
+
+1. **Force older export from FCP**: `File > Export XML > Previous Version` — gets you to 1.10, but Resolve reads it inconsistently. 1.9 is the safest, but FCP 12 doesn't always offer it.
+2. **Unpack the .fcpxmld bundle**: Right-click > Show Package Contents > extract `info.fcpxml` — even then, often greyed out in Resolve's import dialog.
+3. **CommandPost** — has a Sony Timecode Repair toolbox and can force FCPXML 1.11 output, which some older Resolve builds accept. Active dev as of 2025.
+4. **Pre-populate Resolve Media Pool first** (drag original media files directly), then import XML with auto-import disabled — reduces relinking failures.
+5. **Manual XML header edit** — change version number in a text editor (unreliable, last resort).
+
+**What translates when it works at all:**
 
 | Element | FCP → Resolve | Resolve → FCP |
 |---|---|---|
 | Cuts / edit points | ✅ | ✅ |
 | Clip names | ✅ | ✅ |
-| Opacity, position, scale, rotation | ✅ | ✅ |
+| Basic transitions | ✅ mostly | ✅ mostly |
 | Markers | ✅ | ✅ |
-| Basic transitions (crossfade) | ✅ mostly | ✅ mostly |
-| Compound clips / multicam | ✅ | ⚠️ verify |
-| FCP color corrections | ✅ ("Use Color Info" option) | ❌ |
+| Opacity, position, scale, rotation | ✅ | ✅ |
+| FCP color corrections | ✅ ("Use Color Info") | ❌ |
 | Resolve color nodes | — | ❌ |
-| Speed ramps | ⚠️ problematic | ⚠️ |
-| FCP-native titles / effects | ❌ | ❌ |
+| Speed ramps | ❌ breaks | ❌ |
+| FCP-native effects / titles | ❌ | ❌ |
 | FCP Keywords / Events | ❌ | ❌ |
-| Fairlight audio mix | — | ❌ |
+| Timecode (MP4 Sony cameras) | ⚠️ breaks without CommandPost | — |
 
-**The hybrid workflow that makes sense:**
-
+**What professional studios actually do (not roundtrip):**
 ```
-Claude Code → resolve-mcp → Resolve (structural assembly, rough cut, markers)
-  ↓ Export FCPXML 1.9
-FCP (fine cut, audio, effects — editor's native environment)
-  ↓ Export FCPXML 1.9
-Resolve (color page only)
-  ↓ Rendered media + XML return
-FCP (final review)
+Edit in FCP → lock cut → export XML + original media → Resolve (color only)
+→ render graded ProRes → back to FCP as new media files (no XML)
 ```
+No XML roundtrip on the return. The colorist renders, the editor replaces clips. Cleaner, no relinking hell.
 
-This is the workflow: Resolve for AI-piloted structure + color, FCP for the edit itself. The roundtrip is functional for cuts, markers, and structure. It breaks for effects and grades.
+**For Claude Code piloting via Resolve MCP:** Generate structure in Resolve (rough cut, markers, assembly). Export FCPXML to FCP for fine cut. One-way, not roundtrip. Color stays in Resolve. Return is graded media, not XML.
 
-**Premiere ↔ FCP / Resolve:** Premiere's XML export is less reliable than FCPXML. Prefer AAF for Premiere → Resolve (better audio fidelity). Premiere's generative content (Firefly / Quick Cut) does **not** roundtrip — cloud effects are Adobe-ecosystem only. What transfers: basic cut structure.
+**Premiere ↔ FCP / Resolve:** Premiere's XML export is less reliable than FCPXML. Use AAF for Premiere → Resolve (better audio fidelity). Premiere's generative Firefly/Quick Cut content does **not** roundtrip — cloud effects are Adobe-ecosystem only.
 
 ### OTIO — The Missing Layer
 
@@ -631,16 +642,18 @@ Claude Code ↔ OTIO (NLE-agnostic)
 
 Install: `pip install opentimelineio`
 
-**OTIO native NLE support status (March 2026):**
+**OTIO native NLE support status (March 2026) — corrected:**
 
 | NLE | Native UI support | Via Python adapter |
 |---|---|---|
-| **FCP 12** | ❌ not in UI | ✅ otio-fcp-adapter |
-| **Resolve 20** | ⚠️ export only (community plugin) | ✅ resolve-otio |
-| **Premiere Pro** | ⚠️ beta (basic cut structure) | ✅ otio-premiereproject |
+| **FCP 12** | ❌ not in UI | ❌ **no FCP X/12 adapter exists** — only FCP 7 (legacy) |
+| **Resolve 20** | ⚠️ export only (community plugin resolve-otio) | ✅ partial |
+| **Premiere Pro** | ⚠️ in beta (basic cut structure, 2025) | ✅ otio-premiereproject (.prproj read) |
 | **Blender VSE** | ✅ official addon (Blender Studio) | — |
 
-**Key insight:** For Claude Code, NLE native support is irrelevant. The Python OTIO library reads/writes any format. Claude Code works in OTIO in memory, exports to FCPXML or EDL for import into the NLE. The adapter covers the last mile.
+**Important correction:** The OTIO FCP adapter only covers **FCP 7** (the 2011-era NLE). There is no FCP X / FCP 12 exporter. This means OTIO is not a viable bridge between modern FCP and other NLEs — at least not from the FCP side. Resolve can export OTIO (one-way, community plugin). Premiere is moving toward OTIO natively (beta).
+
+**For Claude Code:** OTIO remains the right in-memory format for timeline manipulation in Python (clean API, NLE-agnostic data model). But the last mile for FCP is still FCPXML export from Resolve — not OTIO. For Resolve-only workflows, OTIO is more useful.
 
 ### Pallaidium — Honest Assessment
 
