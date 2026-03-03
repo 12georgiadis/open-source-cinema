@@ -70,6 +70,24 @@ Chain: `Claude Code → applescript-mcp → AppleScript → CommandPost Lua → 
 
 **Verdict for narrative documentary:** Resolve Studio is objectively better for Claude Code automation. FCP covers ~70% of structural/narrative operations (markers, selects, rough cuts) but collapses when you need color, render automation, or live state. If you're committed to FCP for editing feel, use FCP + Jumper + fcpxml-mcp-server + CommandPost. If you want the full pipeline, Resolve Studio.
 
+### The Pareto Decision for Active Production
+
+If you're already an FCP editor mid-production on a film: **don't switch**.
+
+The relearning curve for Resolve is real — 2-3 weeks to be functional, 2-3 months to be fluent. Adding that friction to an active post-production is a risk to the film itself, which contradicts the whole point.
+
+**For the current film (FCP):**
+- VHS Analyzer → FCPXML export → import FCP ✅
+- StoryToolkitAI → FCPXML export → FCP ✅
+- Jumper native in FCP ✅
+- fcpxml-mcp-server: 47 MCP tools for Claude Code → FCPXML automation ✅
+- MacWhisper + Parakeet → SYNTHESIS.md ✅
+- Color: DaVinci Resolve Free (color page only, no API needed) ✅
+
+**For the next film:** Start in Resolve Studio from day one. The relearning is finite and planned, not imposed mid-production.
+
+**What FCP cannot do that Resolve can:** live timeline state (Claude reads the running timeline directly). For 50 structural variants per hour, you eventually need Resolve. For the current film, the FCPXML roundtrip (1-click import) is not meaningful friction.
+
 ---
 
 ## Semantic Footage Analysis
@@ -349,6 +367,56 @@ Add to `~/.claude.json`:
 
 Requires DaVinci Resolve **Studio** running. Free version does not expose the scripting API.
 
+#### 5. ComfyUI MCP Servers (Claude Code ↔ Local Generation)
+
+For complex generation (inpainting, ControlNet, style transfer) that fal.ai can't handle, ComfyUI on a local GPU machine is the answer. Several MCP servers bridge Claude Code to ComfyUI:
+
+| Server | Stars | Best for |
+|---|---|---|
+| **[comfy-pilot](https://github.com/ConstantineB6/comfy-pilot)** | — | Most Claude Code-native: sees, edits, runs workflows. Embedded terminal inside ComfyUI. Describe "build me an inpainting workflow" → Claude creates nodes, connects them, runs. |
+| **[mcp-comfyui](https://github.com/SamuraiBuddha/mcp-comfyui)** | — | Generic bridge: run saved workflows, upload images for img2img, check queue |
+| **[mcp-comfyui-flux](https://github.com/dhofheinz/mcp-comfyui-flux)** | — | Containerized FLUX (schnell + dev fp8), background removal, 4x upscale |
+
+**comfy-pilot** is installed as a ComfyUI extension on the machine running ComfyUI (the Windows RTX 5090), then exposes an MCP endpoint that Claude Code connects to via network (Tailscale).
+
+#### 6. Script → Generation → Timeline Placement (The Full Chain)
+
+The complete pipeline from a document describing a needed shot to a clip at the correct position in the timeline:
+
+```
+Script / document describes the narrative gap
+  ↓
+Claude Code reads → extracts: prompt + timecode + generation method
+  ↓
+GENERATION:
+  Simple (txt2vid, img2vid)    → fal.ai Python SDK (cloud, ~30s, no local setup)
+  Complex (inpaint, ControlNet) → comfy-pilot → ComfyUI on RTX 5090 (local, free)
+  ↓
+PLACEMENT:
+  FCP   → fcp-xml MCP patches FCPXML at correct timecode → 1-click import
+  Resolve → resolve-mcp imports + places directly in running timeline (live, no import)
+```
+
+**fal.ai for simple generation (works today in FCP, no Resolve needed):**
+
+```python
+import fal_client, urllib.request
+
+# Generate a missing shot
+result = fal_client.subscribe(
+    "fal-ai/kling-video/v2.1/pro/text-to-video",
+    arguments={
+        "prompt": "Joshua age 8, holding toy gun, backyard, VHS grain, late afternoon",
+        "duration": "5",
+        "aspect_ratio": "16:9",
+    }
+)
+urllib.request.urlretrieve(result["video"]["url"], "insert_001.mp4")
+# → fcp-xml MCP inserts insert_001.mp4 into FCPXML at timecode 00:12:34:00
+```
+
+The key insight: Claude Code reads the script or document, identifies what's missing and where, generates, then patches the FCPXML. One human action: import the modified XML into FCP.
+
 ### The Architecture
 
 ```
@@ -490,6 +558,48 @@ Documented here because it's frequently underestimated. FCP has a serious script
 
 FCP + this stack covers ~70% of what you'd do with Resolve Python API for narrative/structural work. The gap is live state access, color node control, and stable render automation. For a filmmaker who wants structural automation (rough cuts, markers, selects reels) and stays in FCP for the actual editing feel, this is a real option — not a workaround.
 
+### MCP Servers — Installed Configuration (March 2026)
+
+Active in `~/.claude.json` on MacBook Air M3:
+
+```
+fcp-xml          → fcpxml-mcp-server (47 FCP tools, FCPXML roundtrip)
+resolve-mcp      → samuelgursky/davinci-resolve-mcp (primary, 562 stars)
+resolve-mcp-apvlv → apvlv/davinci-resolve-mcp (Fusion + scene inspection)
+applescript      → @peakmojo/applescript-mcp (UI-level FCP control)
+```
+
+All Resolve servers are pre-configured and waiting. They activate when DaVinci Resolve Studio is running. No reconfiguration needed when you buy Studio.
+
+---
+
+## Adobe Firefly Quick Cut — Competitive Context
+
+Released in **beta, February 25, 2026**. The most relevant recent Adobe launch for documentary filmmakers.
+
+### What It Does
+
+Upload raw footage → describe the result in text → Quick Cut assembles a first cut automatically. Identifies key moments in interviews, builds initial story structure, handles B-roll organization. Aspect ratio, pacing, and duration are configurable.
+
+### Who It's For
+
+Explicitly designed for **content creators, marketers, and time-constrained editors**, not for professional narrative work. Best suited for: social videos, product demos, event recaps, podcast clips, interview summaries.
+
+### What It Cannot Do vs Our Stack
+
+| Capability | Quick Cut | Our Stack |
+|---|---|---|
+| Assembly from footage | ✅ | ✅ (Claude Code → FCPXML) |
+| Natural language footage search | ✅ (Media Intelligence) | ✅ (Jumper 91.3%) |
+| Understands narrative meaning | ❌ | ✅ (Gemini Flash 3.1) |
+| Image + audio + meaning together | ❌ | ✅ (VHS Analyzer) |
+| Private footage (local processing) | ❌ cloud only | ✅ (Qwen3-Omni on RTX 5090) |
+| Multiple generation models | ❌ Firefly Video only | ✅ (Kling, Veo, Wan, fal.ai) |
+| Requires Creative Cloud subscription | ✅ (~$60/month) | ❌ pay-per-use only |
+| "Joshua seems deceptive here" | ❌ | ✅ |
+
+**Verdict:** Quick Cut is a skilled intern for YouTube content. For a documentary about a morally complex character with hours of raw material and ethical layers, it's not the right tool and doesn't compete with this stack.
+
 ---
 
 ## Open Source Pépites
@@ -620,9 +730,7 @@ This is not speculative. Genie 3 (Google DeepMind, $250/mo, accessible via VPN) 
 
 - **FCP 12**: native plugin, sidebar integration ✓
 - **Premiere Pro**: native plugin ✓
-- **DaVinci Resolve**: "in development" (confirmed roadmap, no date)
-
-For Resolve: export OTIO/EDL from Jumper web app, import manually. Not fluent yet.
+- **DaVinci Resolve Studio**: native (Workspace > Workflow Integrations, live March 2026) ✓
 
 ### The Porous Stack (Full Vision)
 
