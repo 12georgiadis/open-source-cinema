@@ -108,7 +108,7 @@ These tools operate on three orthogonal axes. None replaces the others.
 
 **VHS Analyzer** (custom tool, `goldberg/tools/vhs-analyzer/`) — Gemini Flash 3.1 as engine. Analyzes image and audio together with narrative context: "Joshua age 8 holds a toy gun, mother looks away." Understands cinematic significance, not just what's present. 4-phase pipeline: preprocessing → semantic analysis → synthesis → **FCPXML export**. Cost: ~$X/hour of footage via Gemini API. Built specifically for The Goldberg Variations.
 
-**Gemini Flash 3.1 ad-hoc** — same multimodal capability without the pipeline. For one-off questions on a specific clip. No timecode output, no NLE export.
+**Gemini Flash 3.1 ad-hoc** — same multimodal capability without the pipeline. For one-off questions on a specific clip. Used standalone: no timecode output. Used inside VHS Analyzer: full FCPXML output via Phase 4.
 
 **[Twelve Labs](https://twelvelabs.io)** — cloud multimodal search at scale. $0.033/min. Useful for large rushes libraries you don't want to process locally.
 
@@ -131,26 +131,38 @@ Parakeet RNNT-1.1B runs locally on Apple Silicon via CoreML. Faster than Whisper
 
 ### Comparison
 
-| Tool | Sees image | Sees speech | NLE export | Offline | Cost |
-|---|---|---|---|---|---|
-| **Jumper** | ✅ 91.3% | ✅ (speech search) | ✅ FCP/Premiere/Resolve | ✅ | $249 one-time |
-| **StoryToolkitAI** | ❌ | ✅ Whisper local | ✅ EDL + Resolve native | ✅ | Free |
-| **VHS Analyzer** (custom) | ✅ (+ context) | ✅ (+ meaning) | ✅ FCPXML | ❌ Gemini API | Pay-per-use |
-| **FCP 12 Visual Search** | ✅ (12/92) | ✅ (transcript only) | Native | ✅ | Included |
-| **Premiere Text-Based** | ❌ | ✅ (cut via text) | ✅ best-in-class | ✅ | Subscription |
-| **Gemini Flash 3.1** | ✅ | ✅ | ❌ | ❌ | Pay-per-use |
-| **Twelve Labs** | ✅ | ✅ | EDL via Jockey | ❌ | $0.033/min |
+| Tool | Sees image | Sees speech | Understands meaning | NLE export | Offline | Cost |
+|---|---|---|---|---|---|---|
+| **Jumper** | ✅ 91.3% | ✅ | ❌ (pattern match) | ✅ FCP/Premiere/Resolve | ✅ | $249 one-time |
+| **StoryToolkitAI** | ❌ | ✅ Whisper | ⚠️ embeddings (semantic) | ✅ EDL + Resolve native | ✅ | Free |
+| **VHS Analyzer** (custom) | ✅ | ✅ | ✅ Gemini Flash | ✅ FCPXML + query.py | ❌ API | Pay-per-use |
+| **FCP 12 Visual Search** | ✅ (12/92) | ✅ (no edit) | ❌ | Native | ✅ | Included |
+| **Premiere Text-Based** | ❌ | ✅ | ❌ | ✅ best-in-class | ✅ | Subscription |
+| **Gemini Flash 3.1 ad-hoc** | ✅ | ✅ | ✅ | ❌ standalone | ❌ | Pay-per-use |
+| **Twelve Labs** | ✅ | ✅ | ✅ | EDL via Jockey | ❌ | $0.033/min |
 
 ### For Goldberg Specifically
 
 Four non-redundant layers:
 
 ```
-VHS family footage      → VHS Analyzer (Gemini Flash, FCPXML) ← already built
-Joshua interview rushes → StoryToolkitAI (Whisper offline, find what he said → Resolve)
-Terrain visual rushes   → Jumper (find what appears on screen → Resolve)
-Director voice memos    → MacWhisper + Parakeet v3 → Voice Memo Pipeline → SYNTHESIS.md
+VHS family footage      → VHS Analyzer (Gemini Flash, FCPXML + query.py) ← already built
+Joshua interview rushes → StoryToolkitAI (Whisper offline, keyword+semantic → Resolve)
+Terrain visual rushes   → Jumper (visual search → Resolve)
+Director voice memos    → MacWhisper + Parakeet v3 → SYNTHESIS.md
 ```
+
+### What To Borrow From StoryToolkitAI Into The Existing Stack
+
+StoryToolkitAI has three patterns worth porting into VHS Analyzer / query.py:
+
+**1. Embedding-based semantic search** — sentence-transformers (`all-MiniLM-L6-v2`, 80MB, offline). Adds ~50 lines to `query.py`. Allows "find moments where Joshua seems deceptive" without knowing the exact words Gemini used to describe it. Currently query.py does keyword matching on analysis fields — embeddings unlock meaning-level search.
+
+**2. Automatic narrative clustering** — k-means on segment embeddings groups the 360 analyzed segments by thematic proximity without manual tagging. Output: "8 narrative clusters — cluster 3 = 42 moments around identity performance, cluster 7 = 18 moments around violence/weapons". Reveals structure you didn't know was there.
+
+**3. Story sequence builder** — from filtered results, generate FCPXML ordered by a narrative logic, not just score. "mystery → revelation → denial → collapse" with best segments from each category in sequence. StoryToolkitAI calls this "story assembly". Already partially there in query.py with `--fort` filtering — needs the sequencing layer.
+
+**For the voice memo pipeline** (MacWhisper + Parakeet → SYNTHESIS.md): add FCPXML export of strong moments with timecodes so director notes appear as markers on a working timeline alongside footage.
 
 ---
 
