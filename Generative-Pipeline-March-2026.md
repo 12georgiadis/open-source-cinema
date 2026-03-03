@@ -78,37 +78,79 @@ For documentary filmmakers, finding the right moment in hours of rushes is the c
 
 ### Visual Semantic Search
 
-**[Jumper](https://getjumper.io)** — the most important tool here. Offline plugin for FCP and Premiere Pro (Resolve: in development). Natural language visual search: "guy in green t-shirt", "wide shot of empty street", "Find Similar" from a selected clip.
+**[Jumper](https://getjumper.io)** — the most important tool here. Native plugin for FCP, Premiere Pro, and **DaVinci Resolve Studio** (Workspace > Workflow Integrations, live as of March 2026). Natural language visual search: "guy in green t-shirt", "wide shot of empty street", "Find Similar" from a selected clip.
 
 Benchmark (46 searches, nouns/verbs/locations/shot types):
 - Jumper: **91.3%**
-- Premiere Pro native: 68/92
-- FCP 12 native: **12/92**
-
-FCP's native transcript search collapses on visual queries. This benchmark is the strongest argument for adding Jumper regardless of NLE choice.
+- Premiere Pro Media Intelligence: 68/92
+- FCP 12 Visual Search: **12/92**
+- Resolve 20 native: ❌ (no visual search — Jumper fills this gap)
 
 Price: **$249 lifetime** (or $149/year).
 
-### Transcript-Based Search + NLE Export
+### The Three Axes of Footage Search
 
-**[StoryToolkitAI](https://github.com/octimot/StoryToolkitAI)** — built by a documentary editor (Octavian Mot) for his own cutting room. Whisper transcription (local, offline), semantic search in transcripts, story assembly from selections, export to EDL/FCP7XML/Fountain. Deep integration with DaVinci Resolve Studio 18+ (real-time timeline navigation, bidirectional markers). FCP support: FCP7 XML export (functional but less fluid).
+These tools operate on three orthogonal axes. None replaces the others.
 
-**Gemini Flash 3.1** — multimodal analysis of video files directly. Finds moments you can't describe with transcription alone ("is the subject smiling when he says X?"). Not a workflow tool — no timecode output, no NLE export. Complementary to StoryToolkitAI, not a replacement.
+**Axis 1 — Visual content (what the image shows)**
 
-**[Twelve Labs](https://twelvelabs.io)** — cloud-based multimodal search (visual + speech + audio simultaneously). "Person looking out the window at night." Image-to-video search. Rough cut EDL via their open-source [Jockey](https://github.com/twelvelabs-io/jockey) tool. $0.033/minute, 600 free minutes at signup.
+**[Jumper](https://getjumper.io)** — finds moments by what appears on screen. "Man sitting alone", "wide shot empty street", "gun in frame". No transcription involved. 91.3% accuracy. Native in FCP, Premiere, Resolve Studio.
+
+**FCP 12 Visual Search** — same axis, built-in, on-device Apple Silicon. Benchmark: 12/92. Weak on specific subjects, decent for broad categories.
+
+**Axis 2 — Speech content (what was said)**
+
+**[StoryToolkitAI](https://github.com/octimot/StoryToolkitAI)** — offline Whisper transcription (local, free) + semantic search in transcripts + story assembly + EDL/FCPXML export. Deep Resolve Studio integration: bidirectional markers, real-time timeline navigation. Engine: **Whisper** (local, no cloud). Built by a documentary editor for his own cutting room. For Goldberg: "find every moment Joshua talks about Mike", "find every time he laughs", "find his denials". Outputs timecodes directly into Resolve.
+
+**Premiere Pro Text-Based Editing** — best text-based editing workflow of any NLE. Cut the film by editing the transcript as a text document; cuts appear in the timeline. Transcript is local via Adobe Sensei.
+
+**Axis 3 — Multimodal contextual analysis (image + sound + meaning simultaneously)**
+
+**VHS Analyzer** (custom tool, `goldberg/tools/vhs-analyzer/`) — Gemini Flash 3.1 as engine. Analyzes image and audio together with narrative context: "Joshua age 8 holds a toy gun, mother looks away." Understands cinematic significance, not just what's present. 4-phase pipeline: preprocessing → semantic analysis → synthesis → **FCPXML export**. Cost: ~$X/hour of footage via Gemini API. Built specifically for The Goldberg Variations.
+
+**Gemini Flash 3.1 ad-hoc** — same multimodal capability without the pipeline. For one-off questions on a specific clip. No timecode output, no NLE export.
+
+**[Twelve Labs](https://twelvelabs.io)** — cloud multimodal search at scale. $0.033/min. Useful for large rushes libraries you don't want to process locally.
+
+### FCP 12 AI Features (January 2026)
+
+- **Visual Search** — natural language, on-device Apple Silicon, local. Benchmark: 12/92 (vs Jumper 91.3%)
+- **Transcript Search** — local Whisper, ~9.5h transcribed in 5 min on M3 Max. US English primarily. Search finds timecode but doesn't allow cutting via text (that's Premiere's edge)
+- **Beat Detection** — analyzes music for beat grid, snap cuts to rhythm
+
+### Premiere Pro AI Features
+
+- **Text-Based Editing** — best-in-class. Edit the transcript like a Word doc, cuts execute in timeline
+- **Media Intelligence** — scene/object/face detection. Faster than Jumper but 68/92 accuracy
+- **Scene Edit Detection** — finds cuts in consolidated footage automatically
+- **Jumper plugin** — native, 91.3% visual search
+
+### Parakeet v3 (NVIDIA, CoreML)
+
+Parakeet RNNT-1.1B runs locally on Apple Silicon via CoreML. Faster than Whisper at equivalent quality on **English**. MacWhisper supports it as backend. For Joshua Ryne Goldberg's recordings (English speaker): Parakeet v3 > Whisper on speed and accuracy. For French or mixed-language content: Whisper large-v3 remains superior.
 
 ### Comparison
 
-| Tool | Visual search | Transcript | NLE export | Local/offline | Price |
+| Tool | Sees image | Sees speech | NLE export | Offline | Cost |
 |---|---|---|---|---|---|
-| **Jumper** | ✅ 91.3% | ✅ | Plugin (FCP/Premiere) | ✅ | $249 lifetime |
-| **StoryToolkitAI** | ❌ | ✅ | EDL/FCPXML/Resolve native | ✅ | Free |
-| **Twelve Labs** | ✅ | ✅ | EDL via Jockey | ❌ | $0.033/min |
+| **Jumper** | ✅ 91.3% | ✅ (speech search) | ✅ FCP/Premiere/Resolve | ✅ | $249 one-time |
+| **StoryToolkitAI** | ❌ | ✅ Whisper local | ✅ EDL + Resolve native | ✅ | Free |
+| **VHS Analyzer** (custom) | ✅ (+ context) | ✅ (+ meaning) | ✅ FCPXML | ❌ Gemini API | Pay-per-use |
+| **FCP 12 Visual Search** | ✅ (12/92) | ✅ (transcript only) | Native | ✅ | Included |
+| **Premiere Text-Based** | ❌ | ✅ (cut via text) | ✅ best-in-class | ✅ | Subscription |
 | **Gemini Flash 3.1** | ✅ | ✅ | ❌ | ❌ | Pay-per-use |
-| **FCP 12 native** | ❌ (12/92) | ✅ (no edit) | Native | ✅ | Included |
-| **Resolve 20 native** | ❌ | ✅ (exportable) | Native | ✅ | Studio |
+| **Twelve Labs** | ✅ | ✅ | EDL via Jockey | ❌ | $0.033/min |
 
-**For Goldberg-type workflow** (hours of interview rushes, voice analysis already done with Gemini): add Jumper for visual search + StoryToolkitAI for transcript assembly → Resolve export.
+### For Goldberg Specifically
+
+Four non-redundant layers:
+
+```
+VHS family footage      → VHS Analyzer (Gemini Flash, FCPXML) ← already built
+Joshua interview rushes → StoryToolkitAI (Whisper offline, find what he said → Resolve)
+Terrain visual rushes   → Jumper (find what appears on screen → Resolve)
+Director voice memos    → MacWhisper + Parakeet v3 → Voice Memo Pipeline → SYNTHESIS.md
+```
 
 ---
 
@@ -411,9 +453,10 @@ NLE:        DaVinci Resolve Studio ($295 one-time)
             ├── Text-based editing (transcript visible + exportable)
             └── Python API → Claude Code via davinci-resolve-mcp
 
-Footage     Jumper ($249 lifetime) — visual semantic search
-analysis:   StoryToolkitAI (free) — transcript search + EDL export
-            Gemini Flash 3.1 (API) — multimodal ad-hoc analysis
+Footage     Jumper ($249 one-time) — visual search, native in Resolve/FCP/Premiere
+analysis:   StoryToolkitAI (free) — transcript search (Whisper local) → EDL/Resolve
+            VHS Analyzer (custom) — Gemini Flash multimodal → FCPXML (Goldberg VHS)
+            MacWhisper + Parakeet v3 (CoreML) — director voice memos → SYNTHESIS.md
 
 Generative  ComfyUI + Wan 2.2 / LTX-2 / SkyReels V3 (local)
 video:      fal.ai Python SDK (cloud, pay-per-use, no subscription)
