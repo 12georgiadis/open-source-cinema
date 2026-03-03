@@ -106,11 +106,38 @@ These tools operate on three orthogonal axes. None replaces the others.
 
 **Axis 3 — Multimodal contextual analysis (image + sound + meaning simultaneously)**
 
-**VHS Analyzer** (custom tool, `goldberg/tools/vhs-analyzer/`) — Gemini Flash 3.1 as engine. Analyzes image and audio together with narrative context: "Joshua age 8 holds a toy gun, mother looks away." Understands cinematic significance, not just what's present. 4-phase pipeline: preprocessing → semantic analysis → synthesis → **FCPXML export**. Cost: ~$X/hour of footage via Gemini API. Built specifically for The Goldberg Variations.
+**VHS Analyzer** (custom tool, `goldberg/tools/vhs-analyzer/`) — Gemini Flash 3.1 as engine. Analyzes image and audio together with narrative context: "Joshua age 8 holds a toy gun, mother looks away." Understands cinematic significance, not just what's present. 4-phase pipeline: preprocessing → semantic analysis → synthesis → **FCPXML export**. Engine is swappable: Gemini Flash 3.1 (commercial, best quality) or local model (see below). Built specifically for The Goldberg Variations.
 
 **Gemini Flash 3.1 ad-hoc** — same multimodal capability without the pipeline. For one-off questions on a specific clip. Used standalone: no timecode output. Used inside VHS Analyzer: full FCPXML output via Phase 4.
 
 **[Twelve Labs](https://twelvelabs.io)** — cloud multimodal search at scale. $0.033/min. Useful for large rushes libraries you don't want to process locally.
+
+### Local/Offline Alternatives to Gemini Flash 3.1 (March 2026)
+
+The VHS Analyzer engine is swappable. Local models remove the API cost and keep footage private.
+
+| Model | Type | Video+Audio | Local Mac | VRAM/RAM | Quality vs Gemini Flash 3.1 | License |
+|---|---|---|---|---|---|---|
+| **Gemini Flash 3.1** | Commercial cloud | ✅ native | ❌ | — | Baseline | Proprietary |
+| **Qwen3-Omni** (30B-A3B) | Open, MoE | ✅ audio+video native | ⚠️ M3 Ultra 192GB+ | ~60GB | SOTA 22/36 benchmarks, beats Gemini 2.5 Pro on audio-visual | Apache 2.0 |
+| **Qwen3.5** (397B-A17B) | Open, MoE | ✅ video | ⚠️ M3 Ultra 256GB (4-bit) | 64-256GB | 87.5 Video-MME, beats Gemini 3 Pro on docs | Apache 2.0 |
+| **Qwen3-VL** | Open, vision | ✅ video (2h native) | ⚠️ enterprise GPU | 36GB+ (4-bit 235B) | Best open source long-video, timestamp-precise | Apache 2.0 |
+| **InternVL3.5** | Open, vision | ✅ video | ✅ M-series | 6-20GB | SOTA open-source multimodal reasoning | Apache 2.0 |
+| **Gemma 3** (4B/12B/27B) | Open, Google | ⚠️ images + short video | ✅ M-series (12B: 16GB) | 4-32GB | Good on images, weak on long-form video | Apache 2.0 |
+| **Qwen3-Omni-Captioner** | Open, audio | ✅ audio description | ✅ M2 Max+ | ~12GB | Best for ambient sound / SFX description | Apache 2.0 |
+
+**On Apple Silicon specifically:**
+- **Qwen3-ASR Swift** — ASR+TTS from Qwen3-Omni, runs natively on M1+ via MLX. No GPU required. Replaces Whisper/Parakeet on-device with better multilingual quality.
+- **InternVL3.5** — best local vision model for M-series. Runs on M1 Pro 16GB (smaller variants). For video: extract frames with ffmpeg, analyze per-frame, aggregate.
+- **Gemma 3 27B** — fits M2 Max 32GB. Images and short clips only.
+
+**Practical split:**
+```
+Footage requiring deep narrative understanding   → Gemini Flash 3.1 (commercial, best quality)
+Privacy-sensitive rushes or budget-constrained  → InternVL3.5 (local, M-series)
+Audio analysis (ambient, music, SFX)            → Qwen3-Omni-Captioner (local)
+Long-form video (1-2h segments)                 → Qwen3-VL or Qwen3-Omni (enterprise GPU)
+```
 
 ### FCP 12 AI Features (January 2026)
 
@@ -152,17 +179,17 @@ Terrain visual rushes   → Jumper (visual search → Resolve)
 Director voice memos    → MacWhisper + Parakeet v3 → SYNTHESIS.md
 ```
 
-### What To Borrow From StoryToolkitAI Into The Existing Stack
+### Next Steps For The Existing Stack
 
-StoryToolkitAI has three patterns worth porting into VHS Analyzer / query.py:
+Three directions to push `query.py` further:
 
-**1. Embedding-based semantic search** — sentence-transformers (`all-MiniLM-L6-v2`, 80MB, offline). Adds ~50 lines to `query.py`. Allows "find moments where Joshua seems deceptive" without knowing the exact words Gemini used to describe it. Currently query.py does keyword matching on analysis fields — embeddings unlock meaning-level search.
+**1. Embedding-based semantic search** — sentence-transformers (`all-MiniLM-L6-v2`, 80MB, offline). ~50 lines added to `query.py`. Enables "find moments where Joshua seems deceptive" without knowing the exact words the analysis used. Current query.py does keyword matching — embeddings unlock meaning-level search across all 360 segments.
 
-**2. Automatic narrative clustering** — k-means on segment embeddings groups the 360 analyzed segments by thematic proximity without manual tagging. Output: "8 narrative clusters — cluster 3 = 42 moments around identity performance, cluster 7 = 18 moments around violence/weapons". Reveals structure you didn't know was there.
+**2. Automatic narrative clustering** — k-means on segment embeddings. Groups analyzed segments by thematic proximity without manual tagging. Output: "8 narrative clusters — cluster 3 = 42 moments around identity performance, cluster 7 = 18 moments around violence/weapons". Reveals structure before you start cutting.
 
-**3. Story sequence builder** — from filtered results, generate FCPXML ordered by a narrative logic, not just score. "mystery → revelation → denial → collapse" with best segments from each category in sequence. StoryToolkitAI calls this "story assembly". Already partially there in query.py with `--fort` filtering — needs the sequencing layer.
+**3. Story sequence builder** — from filtered results, generate FCPXML ordered by narrative logic. "mystery → revelation → denial → collapse" with best segments of each type in sequence. Already partially there with `--fort` filtering — needs the ordering layer on top.
 
-**For the voice memo pipeline** (MacWhisper + Parakeet → SYNTHESIS.md): add FCPXML export of strong moments with timecodes so director notes appear as markers on a working timeline alongside footage.
+**Voice memo pipeline** (MacWhisper + Parakeet → SYNTHESIS.md): add FCPXML export of strong moments with timecodes so director notes appear as markers on the working timeline alongside footage.
 
 ---
 
