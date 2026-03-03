@@ -475,3 +475,90 @@ No subscriptions.
 - [TrajectoryCrafter](https://github.com/TrajectoryCrafter/TrajectoryCrafter)
 - [GEN3C](https://github.com/nv-tlabs/GEN3C)
 - [Falafel (fal.ai → Resolve bridge)](https://heyyanshuman.com/posts/falafel_launch)
+
+---
+
+## Where This Is Going — Anticipation 6–18 Months
+
+> The CLI is becoming the new timeline. The NLE is becoming a render window, not a decision-making tool.
+
+### The Fundamental Shift: World Models As Film Space
+
+Right now, generative tools produce *clips*. Within 12–18 months, world models will produce *persistent 3D spaces* you navigate and film from. The workflow becomes:
+
+1. **Shoot once** → world model reconstructs the scene in 3D
+2. **Navigate freely** → refilm any angle, any light, in post
+3. **Export as clip sequence** → Resolve for grade and render
+
+This is not speculative. Genie 3 (Google DeepMind, $250/mo, accessible via VPN) already does this for interactive scenes. SkyReels V3 and MAGI-1 (open source) do streaming autoregressive world generation — not fixed clips, but continuous navigable space.
+
+### Jumper — Cross-NLE Status (March 2026)
+
+- **FCP 12**: native plugin, sidebar integration ✓
+- **Premiere Pro**: native plugin ✓
+- **DaVinci Resolve**: "in development" (confirmed roadmap, no date)
+
+For Resolve: export OTIO/EDL from Jumper web app, import manually. Not fluent yet.
+
+### The Porous Stack (Full Vision)
+
+```
+LAYER 1 — Semantic Capture
+  Whisper v3 large (transcript) → StoryToolkitAI (EDL export)
+  Jumper (visual semantic search, offline, $249 lifetime) → FCP/Premiere
+  Gemini Flash 3.1 (multimodal ad-hoc queries, already running)
+
+LAYER 2 — Narrative Structure
+  Claude Code → FCPXML / OTIO / EDL (CLI as editor)
+  davinci-resolve-mcp or fcpxml-mcp-server
+  The CLI decides structure. The NLE renders it.
+
+LAYER 3 — Generation
+  fal.ai (cloud, pay-per-use) → Wan 2.6, Kling 3.0, Veo 3.1
+  ComfyUI (local, zero variable cost) → Wan 2.2 Fun Camera
+  ReCamMaster → reshoot existing rushes from new angles
+
+LAYER 4 — 3D World Space
+  World Labs Marble API → $1.20/world, Python+JS SDK
+  Genie 3 via VPN → interactive navigable worlds (no API yet)
+  SkyReels V3 → open source, Apache 2.0, streaming autoregressive
+  MAGI-1 (Sand AI) → 24B params, open weights, cinematic long-form
+
+LAYER 5 — Audio
+  Adobe Enhance Speech V2 (dialogue cleanup, free)
+  Chatterbox MIT (voice cloning SOTA, beats ElevenLabs 63.75%)
+  MMAudio (video → ambient sound, MIT, CVPR 2025)
+  Suno v5 (music, 8 min, stems, sample-to-song)
+
+LAYER 6 — Final NLE
+  DaVinci Resolve Studio $295 (Python API + MCP + color + render)
+  OR FCP 12 (fcpxml-mcp-server + CommandPost) if staying Mac-native
+```
+
+### What Changes For Hybrid Documentary Practice
+
+- **Your rushes** → ReCamMaster puts them in a reshootable space
+- **Cutaway shots** → generate by navigating the world model of your locations
+- **Editing** → define narrative trajectories, not manual cuts
+- **StoryToolkitAI + Jumper** → become selection tools inside a navigable narrative space, not a linear timeline
+
+### Open Source World Models to Watch
+
+| Model | Status | VRAM | License | Notes |
+|-------|--------|------|---------|-------|
+| **SkyReels V3** | Released | 80GB | Apache 2.0 | Streaming continuous worlds |
+| **MAGI-1** (Sand AI) | Open weights | 80GB | Apache 2.0 | 24B params, cinematic |
+| **Open-Sora 2.0** | Released | 48GB | Apache 2.0 | CinemaScope support |
+| **TrajectoryCrafter** | Released | 28GB | Apache 2.0 | 6DoF from single image |
+| **GEN3C** (NVIDIA) | Released | 24GB | Research | 3D-informed generation |
+
+### The 18-Month Horizon
+
+The distinction between "shooting" and "generating" collapses. A documentary becomes:
+- Real footage (your presence, your eye, your ethics)
+- World-modeled spaces (navigated in post)
+- Generated transitions and texture (Wan 2.x, Kling)
+- AI-reframed narrative structure (Claude Code → OTIO)
+
+The filmmaker's irreplaceable role: **the question, the presence, the cut that matters**. Everything else becomes configurable.
+
