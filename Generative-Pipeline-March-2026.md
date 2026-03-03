@@ -562,9 +562,10 @@ FCP 12 (10.6+) is at FCPXML **1.12** and exports a bundled `.fcpxmld` package (n
 
 **Version gap:**
 ```
-FCP 12 (2025)  → exports FCPXML 1.12 (.fcpxmld bundle)
-Resolve 20     → reads max 1.9–1.10
-Gap            → hard incompatibility, no official fix
+FCP 11  (Nov 2024) → FCPXML 1.13
+FCP 12  (Jan 2026) → FCPXML 1.14 (.fcpxmld bundle)
+Resolve 20         → reads max 1.9–1.10 (1.11 via CommandPost hack)
+Gap                → 4 versions behind, no official fix
 ```
 
 **Workarounds that partially work:**
@@ -598,9 +599,22 @@ Edit in FCP → lock cut → export XML + original media → Resolve (color only
 ```
 No XML roundtrip on the return. The colorist renders, the editor replaces clips. Cleaner, no relinking hell.
 
-**For Claude Code piloting via Resolve MCP:** Generate structure in Resolve (rough cut, markers, assembly). Export FCPXML to FCP for fine cut. One-way, not roundtrip. Color stays in Resolve. Return is graded media, not XML.
+**Direction that works: Resolve → FCP.** Resolve exports FCPXML in an older version that FCP accepts. The broken direction is FCP → Resolve (FCP exports 1.14, Resolve reads max 1.10).
 
-**Premiere ↔ FCP / Resolve:** Premiere's XML export is less reliable than FCPXML. Use AAF for Premiere → Resolve (better audio fidelity). Premiere's generative Firefly/Quick Cut content does **not** roundtrip — cloud effects are Adobe-ecosystem only.
+**For Claude Code piloting via Resolve MCP:** Assemble structure in Resolve (rough cut, markers). Export FCPXML → FCP for fine cut. One-way. Color stays in Resolve. Return is graded media files, not XML.
+
+**FCP 12 ↔ Premiere Pro (different story):**
+
+Premiere reads FCPXML from FCP much better than Resolve does — Adobe has kept up with Apple's version updates. And OTIO is becoming the cleaner bridge.
+
+| Direction | Method | Status |
+|---|---|---|
+| FCP → Premiere | FCPXML import in Premiere | ✅ works (Premiere reads modern FCPXML) |
+| Premiere → FCP | FCPXML export from Premiere | ⚠️ unreliable, structure only |
+| FCP → Premiere | OTIO (otio-fcpx-xml-adapter + Premiere beta) | ✅ cleaner, in beta |
+| Premiere → FCP | .prproj → OTIO → FCPXML (otio-premiereproject) | ✅ read-only, basic structure |
+
+Premiere's generative Firefly/Quick Cut content does **not** roundtrip — cloud effects are Adobe-ecosystem only. What transfers is cut structure.
 
 ### OTIO — The Missing Layer
 
@@ -651,9 +665,23 @@ Install: `pip install opentimelineio`
 | **Premiere Pro** | ⚠️ in beta (basic cut structure, 2025) | ✅ otio-premiereproject (.prproj read) |
 | **Blender VSE** | ✅ official addon (Blender Studio) | — |
 
-**Important correction:** The OTIO FCP adapter only covers **FCP 7** (the 2011-era NLE). There is no FCP X / FCP 12 exporter. This means OTIO is not a viable bridge between modern FCP and other NLEs — at least not from the FCP side. Resolve can export OTIO (one-way, community plugin). Premiere is moving toward OTIO natively (beta).
+**Correction (updated):** OTIO has TWO FCP adapters — do not confuse them:
+- `otio-fcp-adapter` → **FCP 7** only (2011 legacy NLE)
+- [`otio-fcpx-xml-adapter`](https://github.com/OpenTimelineIO/otio-fcpx-xml-adapter) → **FCP X / FCP 12** ✅ (official OTIO repo, PyPI, reads + writes FCPXML)
+- [`otio-fcpx-xml-lite-adapter`](https://pypi.org/project/otio-fcpx-xml-lite-adapter/) → lightweight variant, tested on 1.9 and 1.13, markers + basic structure
 
-**For Claude Code:** OTIO remains the right in-memory format for timeline manipulation in Python (clean API, NLE-agnostic data model). But the last mile for FCP is still FCPXML export from Resolve — not OTIO. For Resolve-only workflows, OTIO is more useful.
+OTIO **can** read and write FCP X FCPXML. Install: `pip install otio-fcpx-xml-adapter`
+
+**OTIO native NLE support status (March 2026 — corrected):**
+
+| NLE | Native UI support | Via Python adapter |
+|---|---|---|
+| **FCP 12** | ❌ not in UI | ✅ `otio-fcpx-xml-adapter` (official) |
+| **Resolve 20** | ⚠️ export only (community plugin) | ✅ `resolve-otio` |
+| **Premiere Pro** | ⚠️ beta (basic cut structure) | ✅ `otio-premiereproject` (.prproj read) |
+| **Blender VSE** | ✅ official addon | — |
+
+**For Claude Code:** OTIO is the right in-memory format for cross-NLE timeline manipulation. Read from FCP via `otio-fcpx-xml-adapter`, manipulate in Python, write to FCPXML for FCP or EDL for Resolve. Cleaner than raw FCPXML parsing.
 
 ### Pallaidium — Honest Assessment
 
