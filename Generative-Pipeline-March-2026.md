@@ -554,6 +554,73 @@ Documented here because it's frequently underestimated. FCP has a serious script
 - [pyFcpxmlCreator](https://github.com/zeibou/pyFcpxmlCreator) — generate FCPXML programmatically
 - [Text_To_Video_Edits-FCP-Python](https://github.com/DmytroNorth/Text_To_Video_Edits-FCP-Python) — cuts from text instructions
 
+### OTIO — The Missing Layer
+
+**[OpenTimelineIO](https://github.com/AcademySoftwareFoundation/OpenTimelineIO)** (Apple → ASWF, Apache 2.0) is the NLE-agnostic timeline interchange format that sits underneath FCP, Resolve, Premiere, and Avid. It's what you should use when Claude Code reasons about timeline structure — not FCPXML (FCP-specific) or EDL (limited).
+
+```python
+import opentimelineio as otio
+
+# Read any timeline — FCP, Resolve, Premiere all export OTIO
+timeline = otio.adapters.read_from_file("goldberg_cut.fcpxml")  # or .otio, .edl
+
+# Reason about structure
+for clip in timeline.tracks[0].children:
+    print(clip.name, clip.source_range)
+
+# Modify — insert a generated clip at a specific timecode
+new_clip = otio.schema.Clip(
+    name="insert_joshua_childhood",
+    source_range=otio.opentime.TimeRange(
+        start_time=otio.opentime.RationalTime(0, 24),
+        duration=otio.opentime.RationalTime(120, 24),  # 5 seconds
+    )
+)
+timeline.tracks[0].insert(7, new_clip)
+
+# Write back to any NLE format
+otio.adapters.write_to_file(timeline, "goldberg_cut_v2.fcpxml")   # FCP
+otio.adapters.write_to_file(timeline, "goldberg_cut_v2.resolve")  # Resolve
+```
+
+**Why OTIO over raw FCPXML:** FCPXML is FCP-specific and verbose. OTIO is the standard — works with every NLE, has a clean Python API, and is the correct "native language" for timeline manipulation at the Claude Code level. When the structural intelligence vision is fully realized, OTIO is the format in which it operates.
+
+```
+Claude Code ↔ OTIO (NLE-agnostic)
+  → export .fcpxml  → FCP
+  → export .resolve → Resolve Studio
+  → export .edl     → any NLE
+```
+
+Install: `pip install opentimelineio`
+
+### Pallaidium — Honest Assessment
+
+**[Pallaidium](https://github.com/tin2tin/Pallaidium)** — Blender-based video editor with AI generation built in. Full Python API (Blender's `bpy`). Interesting in theory.
+
+**Why it doesn't apply here:** Windows + Nvidia only. No serious audio engine. No color science. Community too small for production reliability. Not validated at feature-length doc level. The Blender VSE is not a professional editing environment — no proper multicam, no proxy workflow, no professional output pipeline.
+
+**What it does well:** rapid prototyping of generative sequences on Windows. As an experimentation sandbox on the RTX 5090 machine, fine. As a primary editing environment for a documentary: no.
+
+### ComfyUI Workflows — Pianelli Approach
+
+**Alessandro Pianelli** builds production-grade ComfyUI workflows: multi-stage generation, style consistency, inpainting, ControlNet chains. His workflows are the current reference for quality generation on local GPU.
+
+The right mental model for this stack:
+
+```
+GENERATION QUALITY  → ComfyUI (RTX 5090) + Pianelli-style workflows
+                       (creative iteration, inpainting, ControlNet, style consistency)
+
+GENERATION SPEED    → fal.ai Python SDK
+                       (simple txt2vid or img2vid, cloud, ~30s)
+
+NLE PLACEMENT       → OTIO → FCPXML → FCP (1-click import)
+                       OR resolve-mcp → Resolve (live, when Studio acquired)
+```
+
+These are not competing options. ComfyUI and fal.ai handle different generation scenarios. The NLE placement layer is the same regardless.
+
 ### The Honest Assessment
 
 FCP + this stack covers ~70% of what you'd do with Resolve Python API for narrative/structural work. The gap is live state access, color node control, and stable render automation. For a filmmaker who wants structural automation (rough cuts, markers, selects reels) and stays in FCP for the actual editing feel, this is a real option — not a workaround.
