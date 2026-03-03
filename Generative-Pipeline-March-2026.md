@@ -116,27 +116,69 @@ These tools operate on three orthogonal axes. None replaces the others.
 
 The VHS Analyzer engine is swappable. Local models remove the API cost and keep footage private.
 
-| Model | Type | Video+Audio | Local Mac | VRAM/RAM | Quality vs Gemini Flash 3.1 | License |
+| Model | Type | Video+Audio | VRAM needed | Distill/Quant | Quality vs Gemini Flash 3.1 | License |
 |---|---|---|---|---|---|---|
-| **Gemini Flash 3.1** | Commercial cloud | ✅ native | ❌ | — | Baseline | Proprietary |
-| **Qwen3-Omni** (30B-A3B) | Open, MoE | ✅ audio+video native | ⚠️ M3 Ultra 192GB+ | ~60GB | SOTA 22/36 benchmarks, beats Gemini 2.5 Pro on audio-visual | Apache 2.0 |
-| **Qwen3.5** (397B-A17B) | Open, MoE | ✅ video | ⚠️ M3 Ultra 256GB (4-bit) | 64-256GB | 87.5 Video-MME, beats Gemini 3 Pro on docs | Apache 2.0 |
-| **Qwen3-VL** | Open, vision | ✅ video (2h native) | ⚠️ enterprise GPU | 36GB+ (4-bit 235B) | Best open source long-video, timestamp-precise | Apache 2.0 |
-| **InternVL3.5** | Open, vision | ✅ video | ✅ M-series | 6-20GB | SOTA open-source multimodal reasoning | Apache 2.0 |
-| **Gemma 3** (4B/12B/27B) | Open, Google | ⚠️ images + short video | ✅ M-series (12B: 16GB) | 4-32GB | Good on images, weak on long-form video | Apache 2.0 |
-| **Qwen3-Omni-Captioner** | Open, audio | ✅ audio description | ✅ M2 Max+ | ~12GB | Best for ambient sound / SFX description | Apache 2.0 |
+| **Gemini Flash 3.1** | Commercial API | ✅ native | — | — | Baseline | Proprietary |
+| **Qwen3-Omni** (30B-A3B MoE) | Open | ✅ audio+video native | 31GB (Q4) | AWQ, GGUF | SOTA 22/36 audio-visual benchmarks | Apache 2.0 |
+| **Qwen3.5** (397B-A17B MoE) | Open | ✅ video | 22GB active (AWQ) | AWQ 4-bit | 87.5 Video-MME, beats Gemini 3 Pro | Apache 2.0 |
+| **Qwen3-VL** (235B-A22B MoE) | Open | ✅ video 2h native | 36GB+ (4-bit) | GGUF, AWQ | Best open source long-video, timestamp-precise | Apache 2.0 |
+| **InternVL3.5** (Flash/241B) | Open | ✅ video | 6-24GB | GGUF | SOTA open-source, 4x faster than InternVL3, -50% visual tokens | Apache 2.0 |
+| **Gemma 3** (4B/12B/27B) | Open, Google | ⚠️ images + short video | 4-32GB | GGUF | Good on images, weak on long-form | Apache 2.0 |
+| **Qwen3-Omni-Captioner** | Open | ✅ audio description | ~12GB | GGUF | Best for ambient sound / SFX | Apache 2.0 |
 
-**On Apple Silicon specifically:**
-- **Qwen3-ASR Swift** — ASR+TTS from Qwen3-Omni, runs natively on M1+ via MLX. No GPU required. Replaces Whisper/Parakeet on-device with better multilingual quality.
-- **InternVL3.5** — best local vision model for M-series. Runs on M1 Pro 16GB (smaller variants). For video: extract frames with ffmpeg, analyze per-frame, aggregate.
-- **Gemma 3 27B** — fits M2 Max 32GB. Images and short clips only.
+### Hardware Mapping — Ton Setup
+
+```
+Windows 9950X + RTX 5090 (32GB VRAM) + 96GB DDR5
+  → Qwen3-Omni 30B-A3B AWQ Q4: ~31GB VRAM, 52 tok/sec ✅ (meilleur choix)
+  → Qwen3.5-35B-A3B AWQ 4-bit: ~22GB VRAM ✅
+  → Qwen3-VL quantized (7B/32B): ✅ confortablement
+  → InternVL3.5 Flash: ✅
+  → Inference server vLLM-Omni → expose API locale → Mac Mini + MacBook s'y connectent
+  → Sert aussi pour génération vidéo (ComfyUI, Wan 2.2)
+
+Mac Mini M4 (16-32GB unified memory)
+  → InternVL3.5 compact (7B GGUF) via MLX ✅
+  → Qwen3-ASR Swift (ASR/TTS on-device, MLX) ✅
+  → Gemma 3 12B ✅
+  → Jumper, StoryToolkitAI (CPU) ✅
+
+MacBook Air M3 (8-24GB unified memory)
+  → Gemma 3 4B / InternVL3.5 compact via MLX ✅
+  → Qwen3-ASR Swift ✅
+  → Client léger → requêtes vers vLLM-Omni sur Windows ✅
+```
+
+**Architecture recommandée :** le Windows RTX 5090 tourne comme serveur d'inférence vLLM-Omni (OpenAI-compatible API locale). Mac Mini et MacBook le requêtent via réseau local ou Tailscale. Un seul modèle chargé en VRAM, toutes les machines en profitent.
+
+### Distilled / Quantized — Formats Disponibles
+
+| Format | Outil | Usage |
+|---|---|---|
+| **GGUF Q4_K_XL** | llama.cpp, Unsloth, LM Studio | Meilleur équilibre qualité/vitesse sur GPU |
+| **AWQ 4-bit** | vLLM, Hugging Face Transformers | Production, meilleure compression que GGUF |
+| **GGUF Q2_0** | llama.cpp | Si VRAM tight (80B modèles sur 32GB) |
+| **MLX** | mlx-vlm, Qwen3-ASR Swift | Apple Silicon natif |
+
+Sources distill pour Qwen3-Omni : `unsloth/Qwen3-Omni-GGUF`, `cyankiwi/Qwen3.5-35B-A3B-AWQ-4bit`.
+
+### API Cloud si Pas Local
+
+| Service | Modèles disponibles | Notes |
+|---|---|---|
+| **SiliconFlow** | Qwen3-Omni, Qwen3-VL, InternVL | Meilleure option pour Qwen3-Omni |
+| **Together.ai** | Qwen3.5-397B-A17B | 8.6-19x plus rapide que Qwen3-Max |
+| **Alibaba DashScope** | Qwen3-Omni natif | Latence la plus faible pour Qwen |
+| **Gemini API** | Gemini Flash 3.1 | Commercial, meilleure qualité narrative |
+| **Replicate** | InternVL3.5, LLaVA | Pay-per-use |
 
 **Practical split:**
 ```
-Footage requiring deep narrative understanding   → Gemini Flash 3.1 (commercial, best quality)
-Privacy-sensitive rushes or budget-constrained  → InternVL3.5 (local, M-series)
-Audio analysis (ambient, music, SFX)            → Qwen3-Omni-Captioner (local)
-Long-form video (1-2h segments)                 → Qwen3-VL or Qwen3-Omni (enterprise GPU)
+Rushes narratifs complexes (qualité max)    → Gemini Flash 3.1 (API, commercial)
+Rushes confidentiels / volume important     → Qwen3-Omni AWQ sur RTX 5090 (local)
+Audio description (son ambiant, musique)    → Qwen3-Omni-Captioner (local)
+Analyse rapide / itération légère (Mac)     → InternVL3.5 compact via MLX
+Long-form video 1-2h (Goldberg entiers)     → Qwen3-VL quantized sur RTX 5090
 ```
 
 ### FCP 12 AI Features (January 2026)
