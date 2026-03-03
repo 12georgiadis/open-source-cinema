@@ -603,18 +603,55 @@ No XML roundtrip on the return. The colorist renders, the editor replaces clips.
 
 **For Claude Code piloting via Resolve MCP:** Assemble structure in Resolve (rough cut, markers). Export FCPXML → FCP for fine cut. One-way. Color stays in Resolve. Return is graded media files, not XML.
 
-**FCP 12 ↔ Premiere Pro (different story):**
+---
 
-Premiere reads FCPXML from FCP much better than Resolve does — Adobe has kept up with Apple's version updates. And OTIO is becoming the cleaner bridge.
+### All Directions — Complete Roundtrip Table (March 2026)
 
-| Direction | Method | Status |
+**The universal rule that never changes:** Color grades and NLE-native effects never transfer between NLEs. Always render graded media as new files before handing off. The XML carries *structure* (cuts, markers, clip names). Never *rendering* (grades, effects, audio mix).
+
+#### FCP ↔ Resolve
+
+| Direction | Method | What transfers | What doesn't |
+|---|---|---|---|
+| FCP → Resolve | Export FCPXML 1.11 (force older version at export) | Cuts, markers, clip names, basic transitions, opacity/position/scale | Speed ramps, FCP-native titles/effects, keywords/events, Sony MP4 timecode (needs CommandPost) |
+| Resolve → FCP | Resolve exports older FCPXML that FCP accepts natively | Cuts, markers, basic transforms | Resolve color nodes (never), Resolve-native effects |
+
+**Key workaround — FCP → Resolve:** FCP 12 exports 1.14 by default (Resolve reads max 1.11). Use `File > Export XML > Previous Version` to force 1.11. Pre-populate Resolve's Media Pool with original files before importing XML to minimize relinking failures.
+
+**Verdict:** Resolve → FCP works well. FCP → Resolve is fragile. Practical workflow: do structural work in Claude Code via Resolve MCP (rough assembly, marker placement), export FCPXML → FCP for fine cut. Return path = rendered ProRes files, not XML.
+
+#### FCP ↔ Premiere Pro
+
+| Direction | Method | What transfers | What doesn't |
+|---|---|---|---|
+| FCP → Premiere | **No native import.** Requires XtoCC ($49) or FCP→Resolve→AAF→Premiere | Cuts, basic clip structure (via workaround) | Almost everything else; workaround is lossy |
+| Premiere → FCP | SendToX (third-party, limited) or .prproj → OTIO → FCPXML | Basic edit structure only | Audio mix, effects, color, complex timeline structure |
+
+**Premiere CANNOT import FCPXML natively.** This is a common misconception. Adobe Premiere has no built-in FCPXML importer. The workarounds are: XtoCC ($49, converts FCPXML to .prproj), or FCP→Resolve (FCPXML 1.11)→AAF→Premiere.
+
+**Verdict:** FCP ↔ Premiere roundtrip is the most painful of the three. Avoid unless necessary.
+
+#### Resolve ↔ Premiere Pro
+
+| Direction | Method | What transfers | What doesn't |
+|---|---|---|---|
+| Resolve → Premiere | AAF export from Resolve | Edit structure, clip references, basic audio | Color grades, Resolve Fusion effects, audio channel mapping (often broken) |
+| Premiere → Resolve | AAF or XML from Premiere | Edit structure | Effects, color, Premiere-native audio tracks |
+
+**AAF is the professional standard** for Resolve ↔ Premiere (and Resolve ↔ Avid). More reliable than XML for this pairing.
+
+#### Summary matrix
+
+| Route | Reliability | Recommended method |
 |---|---|---|
-| FCP → Premiere | FCPXML import in Premiere | ✅ works (Premiere reads modern FCPXML) |
-| Premiere → FCP | FCPXML export from Premiere | ⚠️ unreliable, structure only |
-| FCP → Premiere | OTIO (otio-fcpx-xml-adapter + Premiere beta) | ✅ cleaner, in beta |
-| Premiere → FCP | .prproj → OTIO → FCPXML (otio-premiereproject) | ✅ read-only, basic structure |
+| FCP → Resolve | ⚠️ fragile | FCPXML 1.11 forced export + CommandPost |
+| Resolve → FCP | ✅ works | Standard FCPXML export from Resolve |
+| FCP → Premiere | ❌ no native | XtoCC ($49) or via Resolve→AAF |
+| Premiere → FCP | ❌ very limited | SendToX or OTIO bridge (experimental) |
+| Resolve → Premiere | ⚠️ partial | AAF |
+| Premiere → Resolve | ⚠️ partial | AAF |
 
-Premiere's generative Firefly/Quick Cut content does **not** roundtrip — cloud effects are Adobe-ecosystem only. What transfers is cut structure.
+**For this project (Claude Code + FCP as primary NLE):** The only roundtrip that matters is Resolve → FCP (when Claude Code assembles a rough cut in Resolve, you pull it into FCP for fine cut). That direction works. All other directions are one-way streets best handled by rendering new media rather than exchanging XML.
 
 ### OTIO — The Missing Layer
 
