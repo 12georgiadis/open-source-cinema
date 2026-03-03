@@ -554,6 +554,43 @@ Documented here because it's frequently underestimated. FCP has a serious script
 - [pyFcpxmlCreator](https://github.com/zeibou/pyFcpxmlCreator) — generate FCPXML programmatically
 - [Text_To_Video_Edits-FCP-Python](https://github.com/DmytroNorth/Text_To_Video_Edits-FCP-Python) — cuts from text instructions
 
+### Resolve ↔ FCP 12 — Roundtrip Reality (March 2026)
+
+If you pilot structure from Claude Code via Resolve MCP but edit in FCP, this is the exact bridge.
+
+**Critical gotcha:** FCP 12 exports FCPXML **1.12** by default. Resolve does not read 1.12. Always export via `File > Export XML > Previous Version (1.9 or 1.10)`.
+
+| Element | FCP → Resolve | Resolve → FCP |
+|---|---|---|
+| Cuts / edit points | ✅ | ✅ |
+| Clip names | ✅ | ✅ |
+| Opacity, position, scale, rotation | ✅ | ✅ |
+| Markers | ✅ | ✅ |
+| Basic transitions (crossfade) | ✅ mostly | ✅ mostly |
+| Compound clips / multicam | ✅ | ⚠️ verify |
+| FCP color corrections | ✅ ("Use Color Info" option) | ❌ |
+| Resolve color nodes | — | ❌ |
+| Speed ramps | ⚠️ problematic | ⚠️ |
+| FCP-native titles / effects | ❌ | ❌ |
+| FCP Keywords / Events | ❌ | ❌ |
+| Fairlight audio mix | — | ❌ |
+
+**The hybrid workflow that makes sense:**
+
+```
+Claude Code → resolve-mcp → Resolve (structural assembly, rough cut, markers)
+  ↓ Export FCPXML 1.9
+FCP (fine cut, audio, effects — editor's native environment)
+  ↓ Export FCPXML 1.9
+Resolve (color page only)
+  ↓ Rendered media + XML return
+FCP (final review)
+```
+
+This is the workflow: Resolve for AI-piloted structure + color, FCP for the edit itself. The roundtrip is functional for cuts, markers, and structure. It breaks for effects and grades.
+
+**Premiere ↔ FCP / Resolve:** Premiere's XML export is less reliable than FCPXML. Prefer AAF for Premiere → Resolve (better audio fidelity). Premiere's generative content (Firefly / Quick Cut) does **not** roundtrip — cloud effects are Adobe-ecosystem only. What transfers: basic cut structure.
+
 ### OTIO — The Missing Layer
 
 **[OpenTimelineIO](https://github.com/AcademySoftwareFoundation/OpenTimelineIO)** (Apple → ASWF, Apache 2.0) is the NLE-agnostic timeline interchange format that sits underneath FCP, Resolve, Premiere, and Avid. It's what you should use when Claude Code reasons about timeline structure — not FCPXML (FCP-specific) or EDL (limited).
@@ -593,6 +630,17 @@ Claude Code ↔ OTIO (NLE-agnostic)
 ```
 
 Install: `pip install opentimelineio`
+
+**OTIO native NLE support status (March 2026):**
+
+| NLE | Native UI support | Via Python adapter |
+|---|---|---|
+| **FCP 12** | ❌ not in UI | ✅ otio-fcp-adapter |
+| **Resolve 20** | ⚠️ export only (community plugin) | ✅ resolve-otio |
+| **Premiere Pro** | ⚠️ beta (basic cut structure) | ✅ otio-premiereproject |
+| **Blender VSE** | ✅ official addon (Blender Studio) | — |
+
+**Key insight:** For Claude Code, NLE native support is irrelevant. The Python OTIO library reads/writes any format. Claude Code works in OTIO in memory, exports to FCPXML or EDL for import into the NLE. The adapter covers the last mile.
 
 ### Pallaidium — Honest Assessment
 
