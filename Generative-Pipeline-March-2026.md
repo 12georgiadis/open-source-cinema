@@ -657,6 +657,19 @@ No XML roundtrip on the return. The colorist renders, the editor replaces clips.
 
 **[OpenTimelineIO](https://github.com/AcademySoftwareFoundation/OpenTimelineIO)** (Apple → ASWF, Apache 2.0) is the NLE-agnostic timeline interchange format that sits underneath FCP, Resolve, Premiere, and Avid. It's what you should use when Claude Code reasons about timeline structure — not FCPXML (FCP-specific) or EDL (limited).
 
+**OTIO is NOT a better NLE interchange format.** Common misconception: using OTIO as a bridge FCP ↔ Resolve would be worse than direct FCPXML, because OTIO loses additional data at conversion (complex transitions, effects). And Resolve → FCP via OTIO adds zero value since Resolve's native FCPXML export already works.
+
+**Where OTIO actually belongs — the manipulation layer:**
+
+```
+FCP exports FCPXML 1.14 (default)
+→ Claude Code reads via otio-fcpx-xml-adapter (clean Python objects)
+→ manipulates structure (insert generated clips, reorder sequences, place markers)
+→ writes back as FCPXML 1.11 (for Resolve import) OR 1.14 (back to FCP)
+```
+
+OTIO's value is programmatic reasoning inside Claude Code — not as a transport format between NLEs. Use it to *think* about the timeline, not to *move* it between applications.
+
 ```python
 import opentimelineio as otio
 
